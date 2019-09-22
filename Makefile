@@ -1,0 +1,2 @@
+test:
+	$(MAKE) -C tst

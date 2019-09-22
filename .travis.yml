@@ -1,0 +1,8 @@
+language: c
+
+script:
+  - make test
+  - make -C examples
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash) -X coveragepy
