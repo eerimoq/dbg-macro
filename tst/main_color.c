@@ -1,15 +1,17 @@
 #include "dbg.h"
 #include "narwhal.h"
 
+#define FLF(test, line)                                                 \
+    "\x1b[02mmain_color.c:" #line ": (_narwhal_test_function_" #test "_output) " \
+    "\x1b[0m\x1b[36m\x1b[1m"
+
 TEST(dbg_output)
 {
     CAPTURE_OUTPUT(output) {
         dbg(1);
     }
 
-    ASSERT_EQ(output,
-              "\x1b[02mmain_color.c:7: \x1b[0m\x1b[36m\x1b[1m1 \x1b[0m= "
-              "\x1b[01m1\n\x1b[0m");
+    ASSERT_EQ(output, FLF(dbg, 11) "1\x1b[0m = \x1b[01m1\n\x1b[0m");
 }
 
 TEST(dbgb_output)
@@ -18,9 +20,7 @@ TEST(dbgb_output)
         dbgb(1);
     }
 
-    ASSERT_EQ(output,
-              "\x1b[02mmain_color.c:18: \x1b[0m\x1b[36m\x1b[1m1 \x1b[0m= "
-              "\x1b[01mtrue\n\x1b[0m");
+    ASSERT_EQ(output, FLF(dbgb, 20) "1\x1b[0m = \x1b[01mtrue\n\x1b[0m");
 }
 
 TEST(dbga_output)
@@ -32,8 +32,7 @@ TEST(dbga_output)
     }
 
     ASSERT_EQ(output,
-              "\x1b[02mmain_color.c:31: \x1b[0m\x1b[36m\x1b[1ma \x1b[0m= "
-              "\x1b[01m[1, 2, 3] (length: 3)\n\x1b[0m");
+              FLF(dbga, 31) "a\x1b[0m = \x1b[01m[1, 2, 3] (length: 3)\n\x1b[0m");
 }
 
 int main()

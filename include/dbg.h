@@ -3,15 +3,15 @@
 #include <string.h>
 
 /* Library version. */
-#define DBG_VERSION "0.1.0"
+#define DBG_VERSION "0.2.0"
 
 #ifndef NDBG
 /**
  * For primitive data types (int, float, etc.), strings and
  * pointers. Returns the result of given expression.
  */
-#    define dbg(expression)                             \
-    _Generic((expression),                              \
+#    define dbg(expr)                                   \
+    _Generic((expr),                                    \
              char: dbg_char,                            \
              signed char: dbg_schar,                    \
              unsigned char: dbg_uchar,                  \
@@ -33,14 +33,14 @@
              unsigned char *: dbg_uchar_p,              \
              const unsigned char *: dbg_const_uchar_p,  \
              default: dbg_pointer)                      \
-    (__FILE__, __LINE__, #expression, expression)
+    (__FILE__, __LINE__, __func__, #expr, expr)
 
 /**
  * For array of primitive data types. Returns the result of given
  * expression.
  */
-#    define dbga(expression, length)                            \
-    _Generic((expression),                                      \
+#    define dbga(expr, length)                                  \
+    _Generic((expr),                                            \
              short *: dbg_short_p,                              \
              const short *: dbg_const_short_p,                  \
              unsigned short *: dbg_ushort_p,                    \
@@ -63,52 +63,58 @@
              const double *: dbg_const_double_p,                \
              bool *: dbg_bool_p,                                \
              const bool *: dbg_const_bool_p)                    \
-    (__FILE__, __LINE__, #expression, expression, length)
+    (__FILE__, __LINE__, __func__, #expr, expr, length)
 
 /**
  * To force boolean true/false output. Returns the result of given
  * expression.
  */
-#    define dbgb(expression)                                    \
-    dbg_bool(__FILE__, __LINE__, #expression, expression)
+#    define dbgb(expr)                                    \
+    dbg_bool(__FILE__, __LINE__, __func__, #expr, expr)
 #else
-#    define dbg(expression) (expression)
-#    define dbga(expression, length) (expression)
-#    define dbgb(expression) (expression)
+#    define dbg(expr) (expr)
+#    define dbga(expr, length) (expr)
+#    define dbgb(expr) (expr)
 #endif
 
 #define DBG_FUNC(name, type)                                            \
     type dbg_ ## name(const char *file_p,                               \
                       int line,                                         \
-                      const char *expression_p,                         \
+                      const char *func_p,                               \
+                      const char *expr_p,                               \
                       type value);                                      \
                                                                         \
     const type *dbg_const_ ## name ## _p(const char *file_p,            \
                                          int line,                      \
-                                         const char *expression_p,      \
+                                         const char *func_p,            \
+                                         const char *expr_p,            \
                                          const type *value_p,           \
                                          int length);                   \
                                                                         \
     type *dbg_ ## name ## _p(const char *file_p,                        \
                              int line,                                  \
-                             const char *expression_p,                  \
+                             const char *func_p,                        \
+                             const char *expr_p,                        \
                              type *value_p,                             \
                              int length)
 
 #define DBG_FUNC_CHAR(name, type)                                       \
     type dbg_ ## name(const char *file_p,                               \
                       int line,                                         \
-                      const char *expression_p,                         \
+                      const char *func_p,                               \
+                      const char *expr_p,                               \
                       type value);                                      \
                                                                         \
     const type *dbg_const_ ## name ## _p(const char *file_p,            \
                                          int line,                      \
-                                         const char *expression_p,      \
+                                         const char *func_p,            \
+                                         const char *expr_p,            \
                                          const type *value_p);          \
                                                                         \
     type *dbg_ ## name ## _p(const char *file_p,                        \
                              int line,                                  \
-                             const char *expression_p,                  \
+                             const char *func_p,                        \
+                             const char *expr_p,                        \
                              type *value_p)
 
 DBG_FUNC_CHAR(char, char);
@@ -128,5 +134,6 @@ DBG_FUNC(bool, bool);
 
 void *dbg_pointer(const char *file_p,
                   int line,
-                  const char *expression_p,
+                  const char *func_p,
+                  const char *expr_p,
                   void *value_p);

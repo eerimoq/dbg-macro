@@ -1,6 +1,9 @@
 #include "dbg.h"
 #include "narwhal.h"
 
+#define FLF(test, line)                                                 \
+    "main.c:" #line ": (_narwhal_test_function_" #test "_output) "
+
 TEST(char_output)
 {
     CAPTURE_OUTPUT(output) {
@@ -10,9 +13,9 @@ TEST(char_output)
     }
 
     ASSERT_EQ(output,
-              "main.c:7: (char)'a' = 97\n"
-              "main.c:8: (char *)\"hello\" = \"hello\"\n"
-              "main.c:9: (const char *)\"hello\" = \"hello\"\n");
+              FLF(char, 10) "(char)'a' = 97\n"
+              FLF(char, 11) "(char *)\"hello\" = \"hello\"\n"
+              FLF(char, 12) "(const char *)\"hello\" = \"hello\"\n");
 }
 
 TEST(schar_output)
@@ -23,10 +26,11 @@ TEST(schar_output)
         dbg((const signed char *)"hello");
     }
 
-    ASSERT_EQ(output,
-              "main.c:21: (signed char)'a' = 97\n"
-              "main.c:22: (signed char *)\"hello\" = \"hello\"\n"
-              "main.c:23: (const signed char *)\"hello\" = \"hello\"\n");
+    ASSERT_EQ(
+        output,
+        FLF(schar, 24) "(signed char)'a' = 97\n"
+        FLF(schar, 25) "(signed char *)\"hello\" = \"hello\"\n"
+        FLF(schar, 26) "(const signed char *)\"hello\" = \"hello\"\n");
 }
 
 TEST(uchar_output)
@@ -38,9 +42,9 @@ TEST(uchar_output)
     }
 
     ASSERT_EQ(output,
-              "main.c:35: (unsigned char)'a' = 97\n"
-              "main.c:36: (unsigned char *)\"hello\" = \"hello\"\n"
-              "main.c:37: (const unsigned char *)\"hello\" = \"hello\"\n");
+              FLF(uchar, 39) "(unsigned char)'a' = 97\n"
+              FLF(uchar, 40) "(unsigned char *)\"hello\" = \"hello\"\n"
+              FLF(uchar, 41) "(const unsigned char *)\"hello\" = \"hello\"\n");
 }
 
 TEST(short_output)
@@ -55,9 +59,9 @@ TEST(short_output)
     }
 
     ASSERT_EQ(output,
-              "main.c:52: array[0] = 1\n"
-              "main.c:53: array = [1, 2] (length: 2)\n"
-              "main.c:54: const_array = [1, 2] (length: 2)\n");
+              FLF(short, 56) "array[0] = 1\n"
+              FLF(short, 57) "array = [1, 2] (length: 2)\n"
+              FLF(short, 58) "const_array = [1, 2] (length: 2)\n");
 }
 
 TEST(ushort_output)
@@ -72,9 +76,9 @@ TEST(ushort_output)
     }
 
     ASSERT_EQ(output,
-              "main.c:69: array[0] = 1\n"
-              "main.c:70: array = [1, 2] (length: 2)\n"
-              "main.c:71: const_array = [1, 2] (length: 2)\n");
+              FLF(ushort, 73) "array[0] = 1\n"
+              FLF(ushort, 74) "array = [1, 2] (length: 2)\n"
+              FLF(ushort, 75) "const_array = [1, 2] (length: 2)\n");
 }
 
 TEST(int_output)
@@ -89,9 +93,9 @@ TEST(int_output)
     }
 
     ASSERT_EQ(output,
-              "main.c:86: array[0] = 1\n"
-              "main.c:87: array = [1, 2] (length: 2)\n"
-              "main.c:88: const_array = [1, 2] (length: 2)\n");
+              FLF(int, 90) "array[0] = 1\n"
+              FLF(int, 91) "array = [1, 2] (length: 2)\n"
+              FLF(int, 92) "const_array = [1, 2] (length: 2)\n");
 }
 
 TEST(uint_output)
@@ -106,9 +110,9 @@ TEST(uint_output)
     }
 
     ASSERT_EQ(output,
-              "main.c:103: array[0] = 1\n"
-              "main.c:104: array = [1, 2] (length: 2)\n"
-              "main.c:105: const_array = [1, 2] (length: 2)\n");
+              FLF(uint, 107) "array[0] = 1\n"
+              FLF(uint, 108) "array = [1, 2] (length: 2)\n"
+              FLF(uint, 109) "const_array = [1, 2] (length: 2)\n");
 }
 
 TEST(long_output)
@@ -123,9 +127,9 @@ TEST(long_output)
     }
 
     ASSERT_EQ(output,
-              "main.c:120: array[0] = 1\n"
-              "main.c:121: array = [1, 2] (length: 2)\n"
-              "main.c:122: const_array = [1, 2] (length: 2)\n");
+              FLF(long, 124) "array[0] = 1\n"
+              FLF(long, 125) "array = [1, 2] (length: 2)\n"
+              FLF(long, 126) "const_array = [1, 2] (length: 2)\n");
 }
 
 TEST(ulong_output)
@@ -140,9 +144,9 @@ TEST(ulong_output)
     }
 
     ASSERT_EQ(output,
-              "main.c:137: array[0] = 1\n"
-              "main.c:138: array = [1, 2] (length: 2)\n"
-              "main.c:139: const_array = [1, 2] (length: 2)\n");
+              FLF(ulong, 141) "array[0] = 1\n"
+              FLF(ulong, 142) "array = [1, 2] (length: 2)\n"
+              FLF(ulong, 143) "const_array = [1, 2] (length: 2)\n");
 }
 
 TEST(llong_output)
@@ -157,9 +161,9 @@ TEST(llong_output)
     }
 
     ASSERT_EQ(output,
-              "main.c:154: array[0] = 1\n"
-              "main.c:155: array = [1, 2] (length: 2)\n"
-              "main.c:156: const_array = [1, 2] (length: 2)\n");
+              FLF(llong, 158) "array[0] = 1\n"
+              FLF(llong, 159) "array = [1, 2] (length: 2)\n"
+              FLF(llong, 160) "const_array = [1, 2] (length: 2)\n");
 }
 
 TEST(ullong_output)
@@ -174,9 +178,9 @@ TEST(ullong_output)
     }
 
     ASSERT_EQ(output,
-              "main.c:171: array[0] = 1\n"
-              "main.c:172: array = [1, 2] (length: 2)\n"
-              "main.c:173: const_array = [1, 2] (length: 2)\n");
+              FLF(ullong, 175) "array[0] = 1\n"
+              FLF(ullong, 176) "array = [1, 2] (length: 2)\n"
+              FLF(ullong, 177) "const_array = [1, 2] (length: 2)\n");
 }
 
 TEST(float_output)
@@ -191,9 +195,9 @@ TEST(float_output)
     }
 
     ASSERT_EQ(output,
-              "main.c:188: array[0] = 1.000000\n"
-              "main.c:189: array = [1.000000, 2.000000] (length: 2)\n"
-              "main.c:190: const_array = [1.000000, 2.000000] (length: 2)\n");
+              FLF(float, 192) "array[0] = 1.000000\n"
+              FLF(float, 193) "array = [1.000000, 2.000000] (length: 2)\n"
+              FLF(float, 194) "const_array = [1.000000, 2.000000] (length: 2)\n");
 }
 
 TEST(double_output)
@@ -208,9 +212,9 @@ TEST(double_output)
     }
 
     ASSERT_EQ(output,
-              "main.c:205: array[0] = 1.000000\n"
-              "main.c:206: array = [1.000000, 2.000000] (length: 2)\n"
-              "main.c:207: const_array = [1.000000, 2.000000] (length: 2)\n");
+              FLF(double, 209) "array[0] = 1.000000\n"
+              FLF(double, 210) "array = [1.000000, 2.000000] (length: 2)\n"
+              FLF(double, 211) "const_array = [1.000000, 2.000000] (length: 2)\n");
 }
 
 TEST(bool_output)
@@ -226,10 +230,10 @@ TEST(bool_output)
     }
 
     ASSERT_EQ(output,
-              "main.c:222: array[0] = true\n"
-              "main.c:223: array = [true, false] (length: 2)\n"
-              "main.c:224: const_array = [true, false] (length: 2)\n"
-              "main.c:225: 1 = true\n");
+              FLF(bool, 226) "array[0] = true\n"
+              FLF(bool, 227) "array = [true, false] (length: 2)\n"
+              FLF(bool, 228) "const_array = [true, false] (length: 2)\n"
+              FLF(bool, 229) "1 = true\n");
 }
 
 TEST(pointer_output)
@@ -240,7 +244,7 @@ TEST(pointer_output)
         dbg(&a);
     }
 
-    ASSERT_SUBSTRING(output, "main.c:240: &a = 0x");
+    ASSERT_SUBSTRING(output, FLF(pointer, 244) "&a = 0x");
 }
 
 /* To test that the expression is evaluated once. */
