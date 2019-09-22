@@ -6,7 +6,7 @@ About
 
 Three macros that prints and returns the value of a given expression
 for quick and dirty debugging, inspired by Rusts `dbg!(…) macro`_ and
-its `C++ variant`_.  .
+its `C++ variant`_.
 
 ``dbg(...)`` for primitive data types (int, float, etc.), strings and
 pointers.
