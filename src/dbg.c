@@ -50,8 +50,8 @@
                                                 \
         return (value);                         \
     }                                           \
-    FUNC_CONST_P(name, type, format);           \
-    FUNC_P(name, type, format);
+    FUNC_CONST_P(name, type, format)            \
+    FUNC_P(name, type, format)
 
 #define FUNC_CHAR_CONST_P(name, type)                                   \
     const type *dbg_const_ ## name ## _p(const char *file_p,            \
@@ -93,8 +93,8 @@
                                                 \
         return (value);                         \
     }                                           \
-    FUNC_CHAR_CONST_P(name, type);              \
-    FUNC_CHAR_P(name, type);
+    FUNC_CHAR_CONST_P(name, type)               \
+    FUNC_CHAR_P(name, type)
 
 bool dbg_bool(const char *file_p,
               int line,
@@ -143,16 +143,16 @@ bool *dbg_bool_p(const char *file_p,
     return (value_p);
 }
 
-FUNC_CHAR(char, char, "%hhi");
-FUNC_CHAR(schar, signed char, "%hhi");
-FUNC_CHAR(uchar, unsigned char, "%hhu");
-FUNC(short, short, "%hi");
-FUNC(ushort, unsigned short, "%hu");
-FUNC(int, int, "%d");
-FUNC(uint, unsigned int, "%u");
-FUNC(long, long, "%ld");
-FUNC(ulong, unsigned long, "%lu");
-FUNC(llong, long long, "%lld");
-FUNC(ullong, unsigned long long, "%llu");
-FUNC(float, float, "%f");
-FUNC(double, double, "%lf");
+FUNC_CHAR(char, char, "%hhi")
+FUNC_CHAR(schar, signed char, "%hhi")
+FUNC_CHAR(uchar, unsigned char, "%hhu")
+FUNC(short, short, "%hi")
+FUNC(ushort, unsigned short, "%hu")
+FUNC(int, int, "%d")
+FUNC(uint, unsigned int, "%u")
+FUNC(long, long, "%ld")
+FUNC(ulong, unsigned long, "%lu")
+FUNC(llong, long long, "%lld")
+FUNC(ullong, unsigned long long, "%llu")
+FUNC(float, float, "%f")
+FUNC(double, double, "%lf")

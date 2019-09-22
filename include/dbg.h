@@ -18,7 +18,7 @@
                              int line,                                  \
                              const char *expression_p,                  \
                              type *value_p,                             \
-                             int length);
+                             int length)
 
 #define DBG_FUNC_CHAR(name, type)                                       \
     type dbg_ ## name(const char *file_p,                               \
@@ -34,7 +34,7 @@
     type *dbg_ ## name ## _p(const char *file_p,                        \
                              int line,                                  \
                              const char *expression_p,                  \
-                             type *value_p);
+                             type *value_p)
 
 DBG_FUNC_CHAR(char, char);
 DBG_FUNC_CHAR(schar, signed char);
