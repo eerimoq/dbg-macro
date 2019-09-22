@@ -15,6 +15,8 @@ pointers.
 
 ``dbga(...)`` for array of primitive data types.
 
+Define ``NDBG`` to make the macros a no-op.
+
 Example
 =======
 

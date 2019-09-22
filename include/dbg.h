@@ -51,11 +51,18 @@ DBG_FUNC(float, float);
 DBG_FUNC(double, double);
 DBG_FUNC(bool, bool);
 
+void *dbg_pointer(const char *file_p,
+                  int line,
+                  const char *expression_p,
+                  void *value_p);
+
+#ifndef NDBG
+
 /**
  * Prints and returns the value of a given expression for quick and
  * dirty debugging.
  */
-#define dbg(expression)                                 \
+#    define dbg(expression)                             \
     _Generic((expression),                              \
              char: dbg_char,                            \
              signed char: dbg_schar,                    \
@@ -80,7 +87,7 @@ DBG_FUNC(bool, bool);
              default: dbg_pointer)                      \
     (__FILE__, __LINE__, #expression, expression)
 
-#define dbga(expression, length)                                \
+#    define dbga(expression, length)                            \
     _Generic((expression),                                      \
              short *: dbg_short_p,                              \
              const short *: dbg_const_short_p,                  \
@@ -106,10 +113,11 @@ DBG_FUNC(bool, bool);
              const bool *: dbg_const_bool_p)                    \
     (__FILE__, __LINE__, #expression, expression, length)
 
-#define dbgb(expression)                                        \
+#    define dbgb(expression)                                    \
     dbg_bool(__FILE__, __LINE__, #expression, expression)
 
-void *dbg_pointer(const char *file_p,
-                  int line,
-                  const char *expression_p,
-                  void *value_p);
+#else
+#    define dbg(expression) (expression)
+#    define dbga(expression, length) (expression)
+#    define dbgb(expression) (expression)
+#endif
