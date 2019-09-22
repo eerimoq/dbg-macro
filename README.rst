@@ -24,6 +24,8 @@ Just add `dbg.h`_ and `dbg.c`_ to you project to use it.
 Example
 =======
 
+See `examples`_ for the files used in this example.
+
 .. code-block:: c
 
    #include "dbg.h"
@@ -70,3 +72,5 @@ Build and run:
 .. _dbg.h: https://github.com/eerimoq/dbg-macro/blob/master/include/dbg.h
 
 .. _dbg.c: https://github.com/eerimoq/dbg-macro/blob/master/src/dbg.c
+
+.. _examples: https://github.com/eerimoq/dbg-macro/tree/master/examples
