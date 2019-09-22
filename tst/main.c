@@ -222,12 +222,14 @@ TEST(bool_output)
         dbg(array[0]);
         dbga(array, 2);
         dbga(const_array, 2);
+        dbgb(1);
     }
 
     ASSERT_EQ(output,
               "main.c:222: array[0] = true\n"
               "main.c:223: array = [true, false] (length: 2)\n"
-              "main.c:224: const_array = [true, false] (length: 2)\n");
+              "main.c:224: const_array = [true, false] (length: 2)\n"
+              "main.c:225: 1 = true\n");
 }
 
 TEST(char_logic)
