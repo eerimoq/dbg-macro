@@ -1,6 +1,19 @@
 #include "dbg.h"
 #include <stdio.h>
 
+#ifndef NDBGCOLOR
+#    define FORMAT(format)                                              \
+    "\x1b[02m%s:%d: \x1b[0m\x1b[36m\x1b[1m%s \x1b[0m= \x1b[01m" format "\n\x1b[0m"
+
+#    define FORMAT_ARRAY_BEGIN                                          \
+    "\x1b[02m%s:%d: \x1b[0m\x1b[36m\x1b[1m%s \x1b[0m= \x1b[01m["
+#    define FORMAT_ARRAY_END   "] (length: %u)\n\x1b[0m"
+#else
+#    define FORMAT(format)     "%s:%d: %s = " format "\n"
+#    define FORMAT_ARRAY_BEGIN "%s:%d: %s = ["
+#    define FORMAT_ARRAY_END   "] (length: %u)\n"
+#endif
+
 #define FUNC_CONST_P(name, type, format)                                \
     const type *dbg_const_ ## name ## _p(const char *file_p,            \
                                          int line,                      \
@@ -11,7 +24,7 @@
         int i;                                                          \
         char *delim_p;                                                  \
                                                                         \
-        printf("%s:%d: %s = [", file_p, line, expression_p);            \
+        printf(FORMAT_ARRAY_BEGIN, file_p, line, expression_p);         \
         delim_p = "";                                                   \
                                                                         \
         for (i = 0; i < length; i++) {                                  \
@@ -19,7 +32,7 @@
             delim_p = ", ";                                             \
         }                                                               \
                                                                         \
-        printf("] (length: %u)\n", length);                             \
+        printf(FORMAT_ARRAY_END, length);                               \
                                                                         \
         return (value_p);                                               \
     }
@@ -36,21 +49,17 @@
         return (value_p);                                               \
     }
 
-#define FUNC(name, type, format)                \
-    type dbg_ ## name(const char *file_p,       \
-                      int line,                 \
-                      const char *expression_p, \
-                      type value)               \
-    {                                           \
-        printf("%s:%d: %s = " format "\n",      \
-               file_p,                          \
-               line,                            \
-               expression_p,                    \
-               value);                          \
-                                                \
-        return (value);                         \
-    }                                           \
-    FUNC_CONST_P(name, type, format)            \
+#define FUNC(name, type, format)                                        \
+    type dbg_ ## name(const char *file_p,                               \
+                      int line,                                         \
+                      const char *expression_p,                         \
+                      type value)                                       \
+    {                                                                   \
+        printf(FORMAT(format), file_p, line, expression_p, value);      \
+                                                                        \
+        return (value);                                                 \
+    }                                                                   \
+    FUNC_CONST_P(name, type, format)                                    \
     FUNC_P(name, type, format)
 
 #define FUNC_CHAR_CONST_P(name, type)                                   \
@@ -59,11 +68,7 @@
                                          const char *expression_p,      \
                                          const type *value_p)           \
     {                                                                   \
-        printf("%s:%d: %s = \"%s\"\n",                                  \
-               file_p,                                                  \
-               line,                                                    \
-               expression_p,                                            \
-               value_p);                                                \
+        printf(FORMAT("\"%s\""), file_p, line, expression_p, value_p);  \
                                                                         \
         return (value_p);                                               \
     }
@@ -79,33 +84,30 @@
         return (value_p);                                               \
     }
 
-#define FUNC_CHAR(name, type, format)           \
-    type dbg_ ## name(const char *file_p,       \
-                      int line,                 \
-                      const char *expression_p, \
-                      type value)               \
-    {                                           \
-        printf("%s:%d: %s = " format "\n",      \
-               file_p,                          \
-               line,                            \
-               expression_p,                    \
-               value);                          \
-                                                \
-        return (value);                         \
-    }                                           \
-    FUNC_CHAR_CONST_P(name, type)               \
+#define FUNC_CHAR(name, type, format)                                   \
+    type dbg_ ## name(const char *file_p,                               \
+                      int line,                                         \
+                      const char *expression_p,                         \
+                      type value)                                       \
+    {                                                                   \
+        printf(FORMAT(format), file_p, line, expression_p, value);      \
+                                                                        \
+        return (value);                                                 \
+    }                                                                   \
+    FUNC_CHAR_CONST_P(name, type)                                       \
     FUNC_CHAR_P(name, type)
+
+static const char *format_bool(bool value)
+{
+    return (value ? "true" : "false");
+}
 
 bool dbg_bool(const char *file_p,
               int line,
               const char *expression_p,
               bool value)
 {
-    printf("%s:%d: %s = %s\n",
-           file_p,
-           line,
-           expression_p,
-           (value ? "true" : "false"));
+    printf(FORMAT("%s"), file_p, line, expression_p, format_bool(value));
 
     return (value);
 }
@@ -119,15 +121,15 @@ const bool *dbg_const_bool_p(const char *file_p,
     int i;
     char *delim_p;
 
-    printf("%s:%d: %s = [", file_p, line, expression_p);
+    printf(FORMAT_ARRAY_BEGIN, file_p, line, expression_p);
     delim_p = "";
 
     for (i = 0; i < length; i++) {
-        printf("%s%s", delim_p, (value_p[i] ? "true" : "false"));
+        printf("%s%s", delim_p, format_bool(value_p[i]));
         delim_p = ", ";
     }
 
-    printf("] (length: %d)\n", length);
+    printf(FORMAT_ARRAY_END, length);
 
     return (value_p);
 }
@@ -162,7 +164,7 @@ void *dbg_pointer(const char *file_p,
                   const char *expression_p,
                   void *value_p)
 {
-    printf("%s:%d: %s = %p\n", file_p, line, expression_p, value_p);
+    printf(FORMAT("%p"), file_p, line, expression_p, value_p);
 
     return (value_p);
 }

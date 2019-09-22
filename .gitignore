@@ -52,5 +52,6 @@ Mkfile.old
 dkms.conf
 
 main
+main_color
 *.gcda
 *.gcno

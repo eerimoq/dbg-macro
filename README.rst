@@ -17,6 +17,8 @@ pointers.
 
 Define ``NDBG`` to make the macros a no-op.
 
+Define ``NDBGCOLOR`` for output without colors.
+
 Example
 =======
 
@@ -49,22 +51,9 @@ Example
        return (0);
    }
 
-The output is.
+Build and run:
 
-.. code-block:: text
-
-   $ ./main
-   main.c:15: message = "hello"
-   main.c:18: 3 * a = 6
-   main.c:21: numbers = [7, 13] (length: 2)
-   main.c:5: n <= 1 = false
-   main.c:5: n <= 1 = false
-   main.c:5: n <= 1 = false
-   main.c:5: n <= 1 = true
-   main.c:6: 1 = 1
-   main.c:8: n * factorial(n - 1) = 2
-   main.c:8: n * factorial(n - 1) = 6
-   main.c:8: n * factorial(n - 1) = 24
+.. image:: https://github.com/eerimoq/dbg-macro/raw/master/docs/example-build-and-run.png
 
 .. |buildstatus| image:: https://travis-ci.org/eerimoq/dbg-macro.svg?branch=master
 .. _buildstatus: https://travis-ci.org/eerimoq/dbg-macro
