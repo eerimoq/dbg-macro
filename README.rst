@@ -19,6 +19,8 @@ Define ``NDBG`` to make the macros a no-op.
 
 Define ``NDBGCOLOR`` for colorless output.
 
+Just add `dbg.h`_ and `dbg.c`_ to you project to use it.
+
 Example
 =======
 
@@ -64,3 +66,7 @@ Build and run:
 .. _dbg!(…) macro: https://doc.rust-lang.org/std/macro.dbg.html
 
 .. _C++ variant: https://github.com/sharkdp/dbg-macro
+
+.. _dbg.h: https://github.com/eerimoq/dbg-macro/blob/master/include/dbg.h
+
+.. _dbg.c: https://github.com/eerimoq/dbg-macro/blob/master/src/dbg.c
