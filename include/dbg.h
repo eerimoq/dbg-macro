@@ -76,7 +76,8 @@ DBG_FUNC(bool, bool);
              signed char *: dbg_schar_p,                \
              const signed char *: dbg_const_schar_p,    \
              unsigned char *: dbg_uchar_p,              \
-             const unsigned char *: dbg_const_uchar_p)  \
+             const unsigned char *: dbg_const_uchar_p,  \
+             default: dbg_pointer)                      \
     (__FILE__, __LINE__, #expression, expression)
 
 #define dbga(expression, length)                                \
@@ -105,5 +106,10 @@ DBG_FUNC(bool, bool);
              const bool *: dbg_const_bool_p)                    \
     (__FILE__, __LINE__, #expression, expression, length)
 
-#define dbgb(expression)                                                \
+#define dbgb(expression)                                        \
     dbg_bool(__FILE__, __LINE__, #expression, expression)
+
+void *dbg_pointer(const char *file_p,
+                  int line,
+                  const char *expression_p,
+                  void *value_p);

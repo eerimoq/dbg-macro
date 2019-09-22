@@ -232,6 +232,17 @@ TEST(bool_output)
               "main.c:225: 1 = true\n");
 }
 
+TEST(pointer_output)
+{
+    int a = 1;
+
+    CAPTURE_OUTPUT(output) {
+        dbg(&a);
+    }
+
+    ASSERT_SUBSTRING(output, "main.c:240: &a = 0x");
+}
+
 TEST(char_logic)
 {
     ASSERT_EQ(dbg((char)'a'), 'a');
@@ -319,6 +330,7 @@ int main()
                 float_output,
                 double_output,
                 bool_output,
+                pointer_output,
                 char_logic,
                 schar_logic,
                 uchar_logic,

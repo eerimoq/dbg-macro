@@ -156,3 +156,13 @@ FUNC(llong, long long, "%lld")
 FUNC(ullong, unsigned long long, "%llu")
 FUNC(float, float, "%f")
 FUNC(double, double, "%lf")
+
+void *dbg_pointer(const char *file_p,
+                  int line,
+                  const char *expression_p,
+                  void *value_p)
+{
+    printf("%s:%d: %s = %p\n", file_p, line, expression_p, value_p);
+
+    return (value_p);
+}
