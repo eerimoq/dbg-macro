@@ -3,7 +3,8 @@
 
 About
 =====
-A macro for printf-style debugging fans.
+
+A few macros for printf-style debugging fans.
 
 Example
 =======
@@ -30,7 +31,7 @@ Example
        const int b = dbg(3 * a) + 1;  // main.c:18: 3 * a = 6
 
        int numbers[2] = { b, 13 };
-       dbg(numbers);  // main.c:21: numbers = [7, 13] (length: 2)
+       dbga(numbers, 2);  // main.c:21: numbers = [7, 13] (length: 2)
 
        factorial(4);
 
