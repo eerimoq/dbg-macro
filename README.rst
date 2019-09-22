@@ -1,3 +1,6 @@
+|buildstatus|_
+|codecov|_
+
 About
 =====
 A macro for printf-style debugging fans.
@@ -56,6 +59,12 @@ Acknowledgement
 
 This project is inspired by Rusts `dbg!(…) macro`_ and its `C++
 variant`_.
+
+.. |buildstatus| image:: https://travis-ci.org/eerimoq/dbg-macro.svg?branch=master
+.. _buildstatus: https://travis-ci.org/eerimoq/dbg-macro
+
+.. |codecov| image:: https://codecov.io/gh/eerimoq/dbg-macro/branch/master/graph/badge.svg
+.. _codecov: https://codecov.io/gh/eerimoq/dbg-macro
 
 .. _dbg!(…) macro: https://doc.rust-lang.org/std/macro.dbg.html
 
