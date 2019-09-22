@@ -4,7 +4,16 @@
 About
 =====
 
-A few macros for printf-style debugging fans.
+Three macros that prints and returns the value of a given expression
+for quick and dirty debugging, inspired by Rusts `dbg!(…) macro`_ and
+its `C++ variant`_.  .
+
+``dbg(...)`` for primitive data types (int, float, etc.), strings and
+pointers.
+
+``dbgb(...)`` to force boolean true/false output.
+
+``dbga(..., length)`` for array of primitive data types.
 
 Example
 =======
@@ -54,12 +63,6 @@ The output is.
    main.c:8: n * factorial(n - 1) = 2
    main.c:8: n * factorial(n - 1) = 6
    main.c:8: n * factorial(n - 1) = 24
-   
-Acknowledgement
-===============
-
-This project is inspired by Rusts `dbg!(…) macro`_ and its `C++
-variant`_.
 
 .. |buildstatus| image:: https://travis-ci.org/eerimoq/dbg-macro.svg?branch=master
 .. _buildstatus: https://travis-ci.org/eerimoq/dbg-macro
