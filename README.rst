@@ -13,7 +13,7 @@ pointers.
 
 ``dbgb(...)`` to force boolean true/false output.
 
-``dbga(..., length)`` for array of primitive data types.
+``dbga(...)`` for array of primitive data types.
 
 Example
 =======
