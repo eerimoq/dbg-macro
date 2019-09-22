@@ -230,6 +230,76 @@ TEST(bool_output)
               "main.c:224: const_array = [true, false] (length: 2)\n");
 }
 
+TEST(char_logic)
+{
+    ASSERT_EQ(dbg((char)'a'), 'a');
+}
+
+TEST(schar_logic)
+{
+    ASSERT_EQ(dbg((signed char)'a'), 'a');
+}
+
+TEST(uchar_logic)
+{
+    ASSERT_EQ(dbg((unsigned char)'a'), 'a');
+}
+
+TEST(short_logic)
+{
+    ASSERT_EQ(dbg((short)1), 1);
+}
+
+TEST(ushort_logic)
+{
+    ASSERT_EQ(dbg((unsigned short)1), 1);
+}
+
+TEST(int_logic)
+{
+    ASSERT_EQ(dbg((int)1), 1);
+}
+
+TEST(uint_logic)
+{
+    ASSERT_EQ(dbg((unsigned int)1), 1);
+}
+
+TEST(long_logic)
+{
+    ASSERT_EQ(dbg((long)1), 1);
+}
+
+TEST(ulong_logic)
+{
+    ASSERT_EQ(dbg((unsigned long)1), 1);
+}
+
+TEST(llong_logic)
+{
+    ASSERT_EQ(dbg((long long)1), 1);
+}
+
+TEST(ullong_logic)
+{
+    ASSERT_EQ(dbg((unsigned long long)1), 1);
+}
+
+TEST(float_logic)
+{
+    ASSERT_EQ(dbg((float)1.0), 1.0);
+}
+
+TEST(double_logic)
+{
+    ASSERT_EQ(dbg((double)1.0), 1.0);
+}
+
+TEST(bool_logic)
+{
+    ASSERT_EQ(dbg(true), true);
+}
+
 int main()
 {
     return (RUN_TESTS(
@@ -246,6 +316,20 @@ int main()
                 ullong_output,
                 float_output,
                 double_output,
-                bool_output
+                bool_output,
+                char_logic,
+                schar_logic,
+                uchar_logic,
+                short_logic,
+                ushort_logic,
+                int_logic,
+                uint_logic,
+                long_logic,
+                ulong_logic,
+                llong_logic,
+                ullong_logic,
+                float_logic,
+                double_logic,
+                bool_logic
             ));
 }
