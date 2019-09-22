@@ -17,7 +17,7 @@ pointers.
 
 Define ``NDBG`` to make the macros a no-op.
 
-Define ``NDBGCOLOR`` for output without colors.
+Define ``NDBGCOLOR`` for colorless output.
 
 Example
 =======
