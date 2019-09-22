@@ -243,9 +243,23 @@ TEST(pointer_output)
     ASSERT_SUBSTRING(output, "main.c:240: &a = 0x");
 }
 
+/* To test that the expression is evaluated once. */
+static char char_once(char value)
+{
+    static bool called = false;
+
+    if (called) {
+        exit(1);
+    }
+
+    called = true;
+
+    return (value);
+}
+
 TEST(char_logic)
 {
-    ASSERT_EQ(dbg((char)'a'), 'a');
+    ASSERT_EQ(dbg(char_once('a')), 'a');
 }
 
 TEST(schar_logic)
