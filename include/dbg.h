@@ -2,6 +2,9 @@
 #include <stdbool.h>
 #include <string.h>
 
+/* Library version. */
+#define DBG_VERSION "0.1.0"
+
 #ifndef NDBG
 /**
  * For primitive data types (int, float, etc.), strings and
