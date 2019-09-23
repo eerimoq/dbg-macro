@@ -1,3 +1,3 @@
 all:
-	gcc -I../include ../src/dbg.c main.c -o main
+	gcc -I../include main.c -o main
 	./main

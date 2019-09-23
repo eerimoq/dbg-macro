@@ -53,7 +53,7 @@ TEST(dbga_output)
 
     CAPTURE_OUTPUT(output) {
         printf("%d\n", dbga(a, 3)[1]);
-        dbga(a, 3);
+        (void)dbga(a, 3);
     }
 
     ASSERT_EQ(output, "2\n");
@@ -61,9 +61,9 @@ TEST(dbga_output)
 
 int main()
 {
-    return (RUN_TESTS(
-                dbg_output,
-                dbgb_output,
-                dbga_output
-            ));
+    return RUN_TESTS(
+        dbg_output,
+        dbgb_output,
+        dbga_output
+    );
 }

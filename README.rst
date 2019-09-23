@@ -22,7 +22,7 @@ Define ``DBG_NCOLOR`` for colorless output.
 Define ``DBG_OSTREAM=<my-ostream>`` for custom output stream (stderr
 by default).
 
-Just add `dbg.h`_ and `dbg.c`_ to you project to use it.
+Just include `dbg.h`_ in your project to use it.
 
 Example
 =======
@@ -73,7 +73,5 @@ Build and run:
 .. _C++ variant: https://github.com/sharkdp/dbg-macro
 
 .. _dbg.h: https://github.com/eerimoq/dbg-macro/blob/master/include/dbg.h
-
-.. _dbg.c: https://github.com/eerimoq/dbg-macro/blob/master/src/dbg.c
 
 .. _examples: https://github.com/eerimoq/dbg-macro/tree/master/examples

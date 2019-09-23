@@ -65,9 +65,9 @@ TEST(dbga_output)
 
 int main()
 {
-    return (RUN_TESTS(
-                dbg_output,
-                dbgb_output,
-                dbga_output
-            ));
+    return RUN_TESTS(
+        dbg_output,
+        dbgb_output,
+        dbga_output
+    );
 }

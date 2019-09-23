@@ -32,9 +32,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdio.h>
 
 /* Library version. */
-#define DBG_VERSION "0.4.0"
+#define DBG_VERSION "0.5.0"
 
 #ifndef NDBG
 /**
@@ -108,65 +109,228 @@
 #    define dbgb(expr) (expr)
 #endif
 
-#define DBG_FUNC(name, type)                                            \
-    type dbg_ ## name(const char *file_p,                               \
-                      int line,                                         \
-                      const char *func_p,                               \
-                      const char *expr_p,                               \
-                      type value);                                      \
+/* Colorful output selection. */
+#ifndef DBG_NCOLOR
+#    define DBG_LOC "\x1b[02m"
+#    define DBG_EXPR "\x1b[0m\x1b[36m\x1b[1m"
+#    define DBG_VALUE "\x1b[01m"
+#    define DBG_RESET "\x1b[0m"
+#    define DBG_FORMAT(format)                     \
+    DBG_LOC "%s:%d: (%s) " DBG_EXPR "%s" DBG_RESET \
+    " = " DBG_VALUE format "\n" DBG_RESET
+#    define DBG_FORMAT_ARRAY_BEGIN \
+    DBG_LOC "%s:%d: (%s) " DBG_EXPR "%s" DBG_RESET " = " DBG_VALUE "["
+#    define DBG_FORMAT_ARRAY_END   "] (length: %u)\n" DBG_RESET
+#else
+#    define DBG_FORMAT(format)     "%s:%d: (%s) %s = " format "\n"
+#    define DBG_FORMAT_ARRAY_BEGIN "%s:%d: (%s) %s = ["
+#    define DBG_FORMAT_ARRAY_END   "] (length: %u)\n"
+#endif
+
+/* Custom output stream. */
+#ifdef DBG_OSTREAM
+extern FILE *DBG_OSTREAM;
+#else
+#    define DBG_OSTREAM stderr
+#endif
+
+#define DBG_FUNC_CONST_P(name, type, format)                            \
+    static inline const type *dbg_const_ ## name ## _p(const char *file_p,     \
+                                                int line,               \
+                                                const char *func_p,     \
+                                                const char *expr_p,     \
+                                                const type *value_p,    \
+                                                int length)             \
+    {                                                                   \
+        int i;                                                          \
+        char *delim_p;                                                  \
                                                                         \
-    const type *dbg_const_ ## name ## _p(const char *file_p,            \
-                                         int line,                      \
-                                         const char *func_p,            \
-                                         const char *expr_p,            \
-                                         const type *value_p,           \
-                                         int length);                   \
+        fprintf(DBG_OSTREAM,                                            \
+                DBG_FORMAT_ARRAY_BEGIN,                                 \
+                file_p,                                                 \
+                line,                                                   \
+                func_p,                                                 \
+                expr_p);                                                \
+        delim_p = "";                                                   \
                                                                         \
-    type *dbg_ ## name ## _p(const char *file_p,                        \
-                             int line,                                  \
-                             const char *func_p,                        \
-                             const char *expr_p,                        \
-                             type *value_p,                             \
+        for (i = 0; i < length; i++) {                                  \
+            fprintf(DBG_OSTREAM, "%s" format, delim_p, value_p[i]);     \
+            delim_p = ", ";                                             \
+        }                                                               \
+                                                                        \
+        fprintf(DBG_OSTREAM, DBG_FORMAT_ARRAY_END, length);             \
+                                                                        \
+        return (value_p);                                               \
+    }
+
+#define DBG_FUNC_P(name, type, format)                  \
+    static inline type *dbg_ ## name ## _p(const char *file_p, \
+                                    int line,           \
+                                    const char *func_p, \
+                                    const char *expr_p, \
+                                    type *value_p,      \
+                                    int length)         \
+    {                                                   \
+        dbg_const_ ## name ## _p(file_p,                \
+                                 line,                  \
+                                 func_p,                \
+                                 expr_p,                \
+                                 value_p,               \
+                                 length);               \
+                                                        \
+        return (value_p);                               \
+    }
+
+#define DBG_FUNC(name, type, format)                    \
+    static inline type dbg_ ## name(const char *file_p,        \
+                             int line,                  \
+                             const char *func_p,        \
+                             const char *expr_p,        \
+                             type value)                \
+    {                                                   \
+        fprintf(DBG_OSTREAM,                            \
+                DBG_FORMAT(format),                     \
+                file_p,                                 \
+                line,                                   \
+                func_p,                                 \
+                expr_p,                                 \
+                value);                                 \
+                                                        \
+        return (value);                                 \
+    }                                                   \
+    DBG_FUNC_CONST_P(name, type, format)                \
+    DBG_FUNC_P(name, type, format)
+
+#define DBG_FUNC_CHAR_CONST_P(name, type)                               \
+    static inline const type *dbg_const_ ## name ## _p(const char *file_p,     \
+                                                int line,               \
+                                                const char *func_p,     \
+                                                const char *expr_p,     \
+                                                const type *value_p)    \
+    {                                                                   \
+        fprintf(DBG_OSTREAM,                                            \
+                DBG_FORMAT("\"%s\""),                                   \
+                file_p,                                                 \
+                line,                                                   \
+                func_p,                                                 \
+                expr_p,                                                 \
+                value_p);                                               \
+                                                                        \
+        return (value_p);                                               \
+    }
+
+#define DBG_FUNC_CHAR_P(name, type)                                     \
+    static inline type *dbg_ ## name ## _p(const char *file_p,                 \
+                                    int line,                           \
+                                    const char *func_p,                 \
+                                    const char *expr_p,                 \
+                                    type *value_p)                      \
+    {                                                                   \
+        dbg_const_ ## name ## _p(file_p, line, func_p, expr_p, value_p); \
+                                                                        \
+        return (value_p);                                               \
+    }
+
+#define DBG_FUNC_CHAR(name, type, format)               \
+    static inline type dbg_ ## name(const char *file_p,        \
+                             int line,                  \
+                             const char *func_p,        \
+                             const char *expr_p,        \
+                             type value)                \
+    {                                                   \
+        fprintf(DBG_OSTREAM,                            \
+                DBG_FORMAT(format),                     \
+                file_p,                                 \
+                line,                                   \
+                func_p,                                 \
+                expr_p,                                 \
+                value);                                 \
+                                                        \
+        return (value);                                 \
+    }                                                   \
+    DBG_FUNC_CHAR_CONST_P(name, type)                   \
+    DBG_FUNC_CHAR_P(name, type)
+
+static inline const char *dbg_format_bool(bool value)
+{
+    return (value ? "true" : "false");
+}
+
+static inline bool dbg_bool(const char *file_p,
+              int line,
+              const char *func_p,
+              const char *expr_p,
+              bool value)
+{
+    fprintf(DBG_OSTREAM,
+            DBG_FORMAT("%s"),
+            file_p,
+            line,
+            func_p,
+            expr_p,
+            dbg_format_bool(value));
+
+    return (value);
+}
+
+static inline const bool *dbg_const_bool_p(const char *file_p,
+                             int line,
+                             const char *func_p,
+                             const char *expr_p,
+                             const bool *value_p,
                              int length)
+{
+    int i;
+    char *delim_p;
 
-#define DBG_FUNC_CHAR(name, type)                                       \
-    type dbg_ ## name(const char *file_p,                               \
-                      int line,                                         \
-                      const char *func_p,                               \
-                      const char *expr_p,                               \
-                      type value);                                      \
-                                                                        \
-    const type *dbg_const_ ## name ## _p(const char *file_p,            \
-                                         int line,                      \
-                                         const char *func_p,            \
-                                         const char *expr_p,            \
-                                         const type *value_p);          \
-                                                                        \
-    type *dbg_ ## name ## _p(const char *file_p,                        \
-                             int line,                                  \
-                             const char *func_p,                        \
-                             const char *expr_p,                        \
-                             type *value_p)
+    fprintf(DBG_OSTREAM, DBG_FORMAT_ARRAY_BEGIN, file_p, line, func_p, expr_p);
+    delim_p = "";
 
-DBG_FUNC_CHAR(char, char);
-DBG_FUNC_CHAR(schar, signed char);
-DBG_FUNC_CHAR(uchar, unsigned char);
-DBG_FUNC(short, short);
-DBG_FUNC(ushort, unsigned short);
-DBG_FUNC(int, int);
-DBG_FUNC(uint, unsigned int);
-DBG_FUNC(long, long);
-DBG_FUNC(ulong, unsigned long);
-DBG_FUNC(llong, long long);
-DBG_FUNC(ullong, unsigned long long);
-DBG_FUNC(float, float);
-DBG_FUNC(double, double);
-DBG_FUNC(bool, bool);
+    for (i = 0; i < length; i++) {
+        fprintf(DBG_OSTREAM, "%s%s", delim_p, dbg_format_bool(value_p[i]));
+        delim_p = ", ";
+    }
 
-void *dbg_pointer(const char *file_p,
-                  int line,
-                  const char *func_p,
-                  const char *expr_p,
-                  void *value_p);
+    fprintf(DBG_OSTREAM, DBG_FORMAT_ARRAY_END, length);
+
+    return (value_p);
+}
+
+static inline bool *dbg_bool_p(const char *file_p,
+                 int line,
+                 const char *func_p,
+                 const char *expr_p,
+                 bool *value_p,
+                 int length)
+{
+    (void)dbg_const_bool_p(file_p, line, func_p, expr_p, value_p, length);
+
+    return (value_p);
+}
+
+static inline void *dbg_pointer(const char *file_p,
+                                int line,
+                                const char *func_p,
+                                const char *expr_p,
+                                void *value_p)
+{
+    fprintf(DBG_OSTREAM, DBG_FORMAT("%p"), file_p, line, func_p, expr_p, value_p);
+
+    return (value_p);
+}
+
+DBG_FUNC_CHAR(char, char, "%hhi")
+DBG_FUNC_CHAR(schar, signed char, "%hhi")
+DBG_FUNC_CHAR(uchar, unsigned char, "%hhu")
+DBG_FUNC(short, short, "%hi")
+DBG_FUNC(ushort, unsigned short, "%hu")
+DBG_FUNC(int, int, "%d")
+DBG_FUNC(uint, unsigned int, "%u")
+DBG_FUNC(long, long, "%ld")
+DBG_FUNC(ulong, unsigned long, "%lu")
+DBG_FUNC(llong, long long, "%lld")
+DBG_FUNC(ullong, unsigned long long, "%llu")
+DBG_FUNC(float, float, "%f")
+DBG_FUNC(double, double, "%lf")
 
 #endif
