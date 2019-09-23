@@ -26,48 +26,35 @@
  * This file is part of the dbg-macro project.
  */
 
+#include <stdio.h>
 #include "dbg.h"
 #include "narwhal.h"
 
 #define FLF(test, line)                                                 \
-    "\x1b[02mmain_dbgcolor.c:" #line ": (_narwhal_test_function_" #test "_output) " \
+    "\x1b[02mmain_dbg_ostream.c:" #line ": (_narwhal_test_function_" #test "_output) " \
     "\x1b[0m\x1b[36m\x1b[1m"
+
+FILE *my_ostream_p;
 
 TEST(dbg_output)
 {
-    CAPTURE_OUTPUT(output) {
-        dbg(1);
-    }
+    char output[1024];
+    size_t size;
 
-    ASSERT_EQ(output, FLF(dbg, 39) "1\x1b[0m = \x1b[01m1\n\x1b[0m");
-}
-
-TEST(dbgb_output)
-{
-    CAPTURE_OUTPUT(output) {
-        dbgb(1);
-    }
-
-    ASSERT_EQ(output, FLF(dbgb, 48) "1\x1b[0m = \x1b[01mtrue\n\x1b[0m");
-}
-
-TEST(dbga_output)
-{
-    int a[3] = { 1, 2, 3 };
-
-    CAPTURE_OUTPUT(output) {
-        dbga(a, 3);
-    }
-
-    ASSERT_EQ(output,
-              FLF(dbga, 59) "a\x1b[0m = \x1b[01m[1, 2, 3] (length: 3)\n\x1b[0m");
+    my_ostream_p = fopen("test_dbg_ostream.txt", "w+");
+    ASSERT_NE(my_ostream_p, NULL);
+    dbg(1);
+    ASSERT_EQ(fseek(my_ostream_p, 0, SEEK_SET), 0);
+    size = fread(&output[0], 1, 1024, my_ostream_p);
+    ASSERT_GT(size, 0);
+    ASSERT_LT(size, 1024);
+    output[size] = '\0';
+    ASSERT_EQ((char *)output, FLF(dbg, 46) "1\x1b[0m = \x1b[01m1\n\x1b[0m");
 }
 
 int main()
 {
     return (RUN_TESTS(
-                dbg_output,
-                dbgb_output,
-                dbga_output
+                dbg_output
             ));
 }

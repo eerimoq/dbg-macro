@@ -34,7 +34,7 @@
 #include <string.h>
 
 /* Library version. */
-#define DBG_VERSION "0.3.0"
+#define DBG_VERSION "0.4.0"
 
 #ifndef NDBG
 /**

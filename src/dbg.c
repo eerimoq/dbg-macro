@@ -30,7 +30,7 @@
 #include <stdio.h>
 
 /* Colorful output selection. */
-#ifndef NDBGCOLOR
+#ifndef DBG_NCOLOR
 #    define LOC "\x1b[02m"
 #    define EXPR "\x1b[0m\x1b[36m\x1b[1m"
 #    define VALUE "\x1b[01m"
@@ -45,67 +45,97 @@
 #    define FORMAT_ARRAY_END   "] (length: %u)\n"
 #endif
 
-#define FUNC_CONST_P(name, type, format)                                \
-    const type *dbg_const_ ## name ## _p(const char *file_p,            \
-                                         int line,                      \
-                                         const char *func_p,            \
-                                         const char *expr_p,            \
-                                         const type *value_p,           \
-                                         int length)                    \
-    {                                                                   \
-        int i;                                                          \
-        char *delim_p;                                                  \
-                                                                        \
-        printf(FORMAT_ARRAY_BEGIN, file_p, line, func_p, expr_p);       \
-        delim_p = "";                                                   \
-                                                                        \
-        for (i = 0; i < length; i++) {                                  \
-            printf("%s" format, delim_p, value_p[i]);                   \
-            delim_p = ", ";                                             \
-        }                                                               \
-                                                                        \
-        printf(FORMAT_ARRAY_END, length);                               \
-                                                                        \
-        return (value_p);                                               \
+/* Custom output stream. */
+#ifdef DBG_OSTREAM
+extern FILE *DBG_OSTREAM;
+#    define OSTREAM DBG_OSTREAM
+#else
+#    define OSTREAM stderr
+#endif
+
+#define FUNC_CONST_P(name, type, format)                        \
+    const type *dbg_const_ ## name ## _p(const char *file_p,    \
+                                         int line,              \
+                                         const char *func_p,    \
+                                         const char *expr_p,    \
+                                         const type *value_p,   \
+                                         int length)            \
+    {                                                           \
+        int i;                                                  \
+        char *delim_p;                                          \
+                                                                \
+        fprintf(OSTREAM,                                        \
+                FORMAT_ARRAY_BEGIN,                             \
+                file_p,                                         \
+                line,                                           \
+                func_p,                                         \
+                expr_p);                                        \
+        delim_p = "";                                           \
+                                                                \
+        for (i = 0; i < length; i++) {                          \
+            fprintf(OSTREAM, "%s" format, delim_p, value_p[i]); \
+            delim_p = ", ";                                     \
+        }                                                       \
+                                                                \
+        fprintf(OSTREAM, FORMAT_ARRAY_END, length);             \
+                                                                \
+        return (value_p);                                       \
     }
 
-#define FUNC_P(name, type, format)                                      \
-    type *dbg_ ## name ## _p(const char *file_p,                        \
-                             int line,                                  \
-                             const char *func_p,                        \
-                             const char *expr_p,                        \
-                             type *value_p,                             \
-                             int length)                                \
-    {                                                                   \
-        dbg_const_ ## name ## _p(file_p, line, func_p, expr_p, value_p, length); \
-                                                                        \
-        return (value_p);                                               \
+#define FUNC_P(name, type, format)                      \
+    type *dbg_ ## name ## _p(const char *file_p,        \
+                             int line,                  \
+                             const char *func_p,        \
+                             const char *expr_p,        \
+                             type *value_p,             \
+                             int length)                \
+    {                                                   \
+        dbg_const_ ## name ## _p(file_p,                \
+                                 line,                  \
+                                 func_p,                \
+                                 expr_p,                \
+                                 value_p,               \
+                                 length);               \
+                                                        \
+        return (value_p);                               \
     }
 
-#define FUNC(name, type, format)                                        \
-    type dbg_ ## name(const char *file_p,                               \
-                      int line,                                         \
-                      const char *func_p,                               \
-                      const char *expr_p,                               \
-                      type value)                                       \
-    {                                                                   \
-        printf(FORMAT(format), file_p, line, func_p, expr_p, value);    \
-                                                                        \
-        return (value);                                                 \
-    }                                                                   \
-    FUNC_CONST_P(name, type, format)                                    \
+#define FUNC(name, type, format)                \
+    type dbg_ ## name(const char *file_p,       \
+                      int line,                 \
+                      const char *func_p,       \
+                      const char *expr_p,       \
+                      type value)               \
+    {                                           \
+        fprintf(OSTREAM,                        \
+                FORMAT(format),                 \
+                file_p,                         \
+                line,                           \
+                func_p,                         \
+                expr_p,                         \
+                value);                         \
+                                                \
+        return (value);                         \
+    }                                           \
+    FUNC_CONST_P(name, type, format)            \
     FUNC_P(name, type, format)
 
-#define FUNC_CHAR_CONST_P(name, type)                                   \
-    const type *dbg_const_ ## name ## _p(const char *file_p,            \
-                                         int line,                      \
-                                         const char *func_p,            \
-                                         const char *expr_p,            \
-                                         const type *value_p)           \
-    {                                                                   \
-        printf(FORMAT("\"%s\""), file_p, line, func_p, expr_p, value_p); \
-                                                                        \
-        return (value_p);                                               \
+#define FUNC_CHAR_CONST_P(name, type)                           \
+    const type *dbg_const_ ## name ## _p(const char *file_p,    \
+                                         int line,              \
+                                         const char *func_p,    \
+                                         const char *expr_p,    \
+                                         const type *value_p)   \
+    {                                                           \
+        fprintf(OSTREAM,                                        \
+                FORMAT("\"%s\""),                               \
+                file_p,                                         \
+                line,                                           \
+                func_p,                                         \
+                expr_p,                                         \
+                value_p);                                       \
+                                                                \
+        return (value_p);                                       \
     }
 
 #define FUNC_CHAR_P(name, type)                                         \
@@ -120,18 +150,24 @@
         return (value_p);                                               \
     }
 
-#define FUNC_CHAR(name, type, format)                                   \
-    type dbg_ ## name(const char *file_p,                               \
-                      int line,                                         \
-                      const char *func_p,                               \
-                      const char *expr_p,                               \
-                      type value)                                       \
-    {                                                                   \
-        printf(FORMAT(format), file_p, line, func_p, expr_p, value);    \
-                                                                        \
-        return (value);                                                 \
-    }                                                                   \
-    FUNC_CHAR_CONST_P(name, type)                                       \
+#define FUNC_CHAR(name, type, format)           \
+    type dbg_ ## name(const char *file_p,       \
+                      int line,                 \
+                      const char *func_p,       \
+                      const char *expr_p,       \
+                      type value)               \
+    {                                           \
+        fprintf(OSTREAM,                        \
+                FORMAT(format),                 \
+                file_p,                         \
+                line,                           \
+                func_p,                         \
+                expr_p,                         \
+                value);                         \
+                                                \
+        return (value);                         \
+    }                                           \
+    FUNC_CHAR_CONST_P(name, type)               \
     FUNC_CHAR_P(name, type)
 
 static const char *format_bool(bool value)
@@ -145,7 +181,7 @@ bool dbg_bool(const char *file_p,
               const char *expr_p,
               bool value)
 {
-    printf(FORMAT("%s"), file_p, line, func_p, expr_p, format_bool(value));
+    fprintf(OSTREAM, FORMAT("%s"), file_p, line, func_p, expr_p, format_bool(value));
 
     return (value);
 }
@@ -160,15 +196,15 @@ const bool *dbg_const_bool_p(const char *file_p,
     int i;
     char *delim_p;
 
-    printf(FORMAT_ARRAY_BEGIN, file_p, line, func_p, expr_p);
+    fprintf(OSTREAM, FORMAT_ARRAY_BEGIN, file_p, line, func_p, expr_p);
     delim_p = "";
 
     for (i = 0; i < length; i++) {
-        printf("%s%s", delim_p, format_bool(value_p[i]));
+        fprintf(OSTREAM, "%s%s", delim_p, format_bool(value_p[i]));
         delim_p = ", ";
     }
 
-    printf(FORMAT_ARRAY_END, length);
+    fprintf(OSTREAM, FORMAT_ARRAY_END, length);
 
     return (value_p);
 }
@@ -205,7 +241,7 @@ void *dbg_pointer(const char *file_p,
                   const char *expr_p,
                   void *value_p)
 {
-    printf(FORMAT("%p"), file_p, line, func_p, expr_p, value_p);
+    fprintf(OSTREAM, FORMAT("%p"), file_p, line, func_p, expr_p, value_p);
 
     return (value_p);
 }

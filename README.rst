@@ -17,7 +17,10 @@ pointers.
 
 Define ``NDBG`` to make the macros a no-op.
 
-Define ``NDBGCOLOR`` for colorless output.
+Define ``DBG_NCOLOR`` for colorless output.
+
+Define ``DBG_OSTREAM=<my-ostream>`` for custom output stream (stderr
+by default).
 
 Just add `dbg.h`_ and `dbg.c`_ to you project to use it.
 

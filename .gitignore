@@ -52,7 +52,9 @@ Mkfile.old
 dkms.conf
 
 main
-main_dbgcolor
+main_dbg_color
 main_ndbg
+main_dbg_ostream
+test_dbg_ostream.txt
 *.gcda
 *.gcno
