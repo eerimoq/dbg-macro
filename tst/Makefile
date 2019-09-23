@@ -14,7 +14,8 @@ CFLAGS ?= \
 
 all:
 	$(MAKE) test
-	$(MAKE) test-color
+	$(MAKE) test-dbgcolor
+	$(MAKE) test-ndbg
 
 test:
 	gcc -DNDBGCOLOR -fprofile-arcs -ftest-coverage \
@@ -23,7 +24,12 @@ test:
 	    -I../include dbg.o narwhal.c main.c -o main
 	./main
 
-test-color:
+test-dbgcolor:
 	gcc $(CFLAGS) -I../include -c ../src/dbg.c
-	gcc -I../include dbg.o narwhal.c main_color.c -o main_color
-	./main_color
+	gcc -I../include dbg.o narwhal.c main_dbgcolor.c -o main_dbgcolor
+	./main_dbgcolor
+
+test-ndbg:
+	gcc -DNDBG $(CFLAGS) -I../include -c ../src/dbg.c
+	gcc -DNDBG -I../include dbg.o narwhal.c main_ndbg.c -o main_ndbg
+	./main_ndbg

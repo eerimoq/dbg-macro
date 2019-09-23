@@ -1,3 +1,31 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2019 Erik Moqvist
+ *
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without
+ * restriction, including without limitation the rights to use, copy,
+ * modify, merge, publish, distribute, sublicense, and/or sell copies
+ * of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * This file is part of the dbg-macro project.
+ */
+
 #include "dbg.h"
 #include "narwhal.h"
 
@@ -13,9 +41,9 @@ TEST(char_output)
     }
 
     ASSERT_EQ(output,
-              FLF(char, 10) "(char)'a' = 97\n"
-              FLF(char, 11) "(char *)\"hello\" = \"hello\"\n"
-              FLF(char, 12) "(const char *)\"hello\" = \"hello\"\n");
+              FLF(char, 38) "(char)'a' = 97\n"
+              FLF(char, 39) "(char *)\"hello\" = \"hello\"\n"
+              FLF(char, 40) "(const char *)\"hello\" = \"hello\"\n");
 }
 
 TEST(schar_output)
@@ -28,9 +56,9 @@ TEST(schar_output)
 
     ASSERT_EQ(
         output,
-        FLF(schar, 24) "(signed char)'a' = 97\n"
-        FLF(schar, 25) "(signed char *)\"hello\" = \"hello\"\n"
-        FLF(schar, 26) "(const signed char *)\"hello\" = \"hello\"\n");
+        FLF(schar, 52) "(signed char)'a' = 97\n"
+        FLF(schar, 53) "(signed char *)\"hello\" = \"hello\"\n"
+        FLF(schar, 54) "(const signed char *)\"hello\" = \"hello\"\n");
 }
 
 TEST(uchar_output)
@@ -42,9 +70,9 @@ TEST(uchar_output)
     }
 
     ASSERT_EQ(output,
-              FLF(uchar, 39) "(unsigned char)'a' = 97\n"
-              FLF(uchar, 40) "(unsigned char *)\"hello\" = \"hello\"\n"
-              FLF(uchar, 41) "(const unsigned char *)\"hello\" = \"hello\"\n");
+              FLF(uchar, 67) "(unsigned char)'a' = 97\n"
+              FLF(uchar, 68) "(unsigned char *)\"hello\" = \"hello\"\n"
+              FLF(uchar, 69) "(const unsigned char *)\"hello\" = \"hello\"\n");
 }
 
 TEST(short_output)
@@ -59,9 +87,9 @@ TEST(short_output)
     }
 
     ASSERT_EQ(output,
-              FLF(short, 56) "array[0] = 1\n"
-              FLF(short, 57) "array = [1, 2] (length: 2)\n"
-              FLF(short, 58) "const_array = [1, 2] (length: 2)\n");
+              FLF(short, 84) "array[0] = 1\n"
+              FLF(short, 85) "array = [1, 2] (length: 2)\n"
+              FLF(short, 86) "const_array = [1, 2] (length: 2)\n");
 }
 
 TEST(ushort_output)
@@ -76,9 +104,9 @@ TEST(ushort_output)
     }
 
     ASSERT_EQ(output,
-              FLF(ushort, 73) "array[0] = 1\n"
-              FLF(ushort, 74) "array = [1, 2] (length: 2)\n"
-              FLF(ushort, 75) "const_array = [1, 2] (length: 2)\n");
+              FLF(ushort, 101) "array[0] = 1\n"
+              FLF(ushort, 102) "array = [1, 2] (length: 2)\n"
+              FLF(ushort, 103) "const_array = [1, 2] (length: 2)\n");
 }
 
 TEST(int_output)
@@ -93,9 +121,9 @@ TEST(int_output)
     }
 
     ASSERT_EQ(output,
-              FLF(int, 90) "array[0] = 1\n"
-              FLF(int, 91) "array = [1, 2] (length: 2)\n"
-              FLF(int, 92) "const_array = [1, 2] (length: 2)\n");
+              FLF(int, 118) "array[0] = 1\n"
+              FLF(int, 119) "array = [1, 2] (length: 2)\n"
+              FLF(int, 120) "const_array = [1, 2] (length: 2)\n");
 }
 
 TEST(uint_output)
@@ -110,9 +138,9 @@ TEST(uint_output)
     }
 
     ASSERT_EQ(output,
-              FLF(uint, 107) "array[0] = 1\n"
-              FLF(uint, 108) "array = [1, 2] (length: 2)\n"
-              FLF(uint, 109) "const_array = [1, 2] (length: 2)\n");
+              FLF(uint, 135) "array[0] = 1\n"
+              FLF(uint, 136) "array = [1, 2] (length: 2)\n"
+              FLF(uint, 137) "const_array = [1, 2] (length: 2)\n");
 }
 
 TEST(long_output)
@@ -127,9 +155,9 @@ TEST(long_output)
     }
 
     ASSERT_EQ(output,
-              FLF(long, 124) "array[0] = 1\n"
-              FLF(long, 125) "array = [1, 2] (length: 2)\n"
-              FLF(long, 126) "const_array = [1, 2] (length: 2)\n");
+              FLF(long, 152) "array[0] = 1\n"
+              FLF(long, 153) "array = [1, 2] (length: 2)\n"
+              FLF(long, 154) "const_array = [1, 2] (length: 2)\n");
 }
 
 TEST(ulong_output)
@@ -144,9 +172,9 @@ TEST(ulong_output)
     }
 
     ASSERT_EQ(output,
-              FLF(ulong, 141) "array[0] = 1\n"
-              FLF(ulong, 142) "array = [1, 2] (length: 2)\n"
-              FLF(ulong, 143) "const_array = [1, 2] (length: 2)\n");
+              FLF(ulong, 169) "array[0] = 1\n"
+              FLF(ulong, 170) "array = [1, 2] (length: 2)\n"
+              FLF(ulong, 171) "const_array = [1, 2] (length: 2)\n");
 }
 
 TEST(llong_output)
@@ -161,9 +189,9 @@ TEST(llong_output)
     }
 
     ASSERT_EQ(output,
-              FLF(llong, 158) "array[0] = 1\n"
-              FLF(llong, 159) "array = [1, 2] (length: 2)\n"
-              FLF(llong, 160) "const_array = [1, 2] (length: 2)\n");
+              FLF(llong, 186) "array[0] = 1\n"
+              FLF(llong, 187) "array = [1, 2] (length: 2)\n"
+              FLF(llong, 188) "const_array = [1, 2] (length: 2)\n");
 }
 
 TEST(ullong_output)
@@ -178,9 +206,9 @@ TEST(ullong_output)
     }
 
     ASSERT_EQ(output,
-              FLF(ullong, 175) "array[0] = 1\n"
-              FLF(ullong, 176) "array = [1, 2] (length: 2)\n"
-              FLF(ullong, 177) "const_array = [1, 2] (length: 2)\n");
+              FLF(ullong, 203) "array[0] = 1\n"
+              FLF(ullong, 204) "array = [1, 2] (length: 2)\n"
+              FLF(ullong, 205) "const_array = [1, 2] (length: 2)\n");
 }
 
 TEST(float_output)
@@ -195,9 +223,9 @@ TEST(float_output)
     }
 
     ASSERT_EQ(output,
-              FLF(float, 192) "array[0] = 1.000000\n"
-              FLF(float, 193) "array = [1.000000, 2.000000] (length: 2)\n"
-              FLF(float, 194) "const_array = [1.000000, 2.000000] (length: 2)\n");
+              FLF(float, 220) "array[0] = 1.000000\n"
+              FLF(float, 221) "array = [1.000000, 2.000000] (length: 2)\n"
+              FLF(float, 222) "const_array = [1.000000, 2.000000] (length: 2)\n");
 }
 
 TEST(double_output)
@@ -212,9 +240,9 @@ TEST(double_output)
     }
 
     ASSERT_EQ(output,
-              FLF(double, 209) "array[0] = 1.000000\n"
-              FLF(double, 210) "array = [1.000000, 2.000000] (length: 2)\n"
-              FLF(double, 211) "const_array = [1.000000, 2.000000] (length: 2)\n");
+              FLF(double, 237) "array[0] = 1.000000\n"
+              FLF(double, 238) "array = [1.000000, 2.000000] (length: 2)\n"
+              FLF(double, 239) "const_array = [1.000000, 2.000000] (length: 2)\n");
 }
 
 TEST(bool_output)
@@ -230,10 +258,10 @@ TEST(bool_output)
     }
 
     ASSERT_EQ(output,
-              FLF(bool, 226) "array[0] = true\n"
-              FLF(bool, 227) "array = [true, false] (length: 2)\n"
-              FLF(bool, 228) "const_array = [true, false] (length: 2)\n"
-              FLF(bool, 229) "1 = true\n");
+              FLF(bool, 254) "array[0] = true\n"
+              FLF(bool, 255) "array = [true, false] (length: 2)\n"
+              FLF(bool, 256) "const_array = [true, false] (length: 2)\n"
+              FLF(bool, 257) "1 = true\n");
 }
 
 TEST(pointer_output)
@@ -244,7 +272,7 @@ TEST(pointer_output)
         dbg(&a);
     }
 
-    ASSERT_SUBSTRING(output, FLF(pointer, 244) "&a = 0x");
+    ASSERT_SUBSTRING(output, FLF(pointer, 272) "&a = 0x");
 }
 
 /* To test that the expression is evaluated once. */
