@@ -1,6 +1,5 @@
 |buildstatus|_
 |codecov|_
-|tryit|_
 
 About
 =====
@@ -27,6 +26,8 @@ Just include `dbg.h`_ in your project to use it.
 
 Example
 =======
+
+|tryit|_
 
 See `examples`_ for the files used in this example.
 
