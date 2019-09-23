@@ -29,14 +29,16 @@
 #include "dbg.h"
 #include <stdio.h>
 
+/* Colorful output selection. */
 #ifndef NDBGCOLOR
+#    define LOC "\x1b[02m"
+#    define EXPR "\x1b[0m\x1b[36m\x1b[1m"
+#    define VALUE "\x1b[01m"
+#    define RESET "\x1b[0m"
 #    define FORMAT(format)                                              \
-    "\x1b[02m%s:%d: (%s) \x1b[0m\x1b[36m\x1b[1m%s\x1b[0m = \x1b[01m"    \
-    format "\n\x1b[0m"
-
-#    define FORMAT_ARRAY_BEGIN                                          \
-    "\x1b[02m%s:%d: (%s) \x1b[0m\x1b[36m\x1b[1m%s\x1b[0m = \x1b[01m["
-#    define FORMAT_ARRAY_END   "] (length: %u)\n\x1b[0m"
+    LOC "%s:%d: (%s) " EXPR "%s" RESET " = " VALUE format "\n" RESET
+#    define FORMAT_ARRAY_BEGIN LOC "%s:%d: (%s) " EXPR "%s" RESET " = " VALUE "["
+#    define FORMAT_ARRAY_END   "] (length: %u)\n" RESET
 #else
 #    define FORMAT(format)     "%s:%d: (%s) %s = " format "\n"
 #    define FORMAT_ARRAY_BEGIN "%s:%d: (%s) %s = ["
