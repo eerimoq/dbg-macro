@@ -53,7 +53,7 @@ See `examples`_ for the files used in this example.
        int numbers[2] = { b, 13 };
        dbga(numbers, 2);  // main.c:21: numbers = [7, 13] (length: 2)
 
-       factorial(4);
+       dbg(factorial(4));
 
        return (0);
    }
