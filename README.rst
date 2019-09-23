@@ -1,5 +1,6 @@
 |buildstatus|_
 |codecov|_
+|tryit|_
 
 About
 =====
@@ -67,6 +68,9 @@ Build and run:
 
 .. |codecov| image:: https://codecov.io/gh/eerimoq/dbg-macro/branch/master/graph/badge.svg
 .. _codecov: https://codecov.io/gh/eerimoq/dbg-macro
+
+.. |tryit| image:: https://img.shields.io/badge/try-online-f34b7d.svg
+.. _tryit: https://repl.it/@eerimoq/dbg-macro
 
 .. _dbg!(…) macro: https://doc.rust-lang.org/std/macro.dbg.html
 
