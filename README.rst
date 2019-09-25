@@ -15,13 +15,6 @@ pointers.
 
 ``dbga(...)`` for array of primitive data types.
 
-Define ``NDBG`` to make the macros a no-op.
-
-Define ``DBG_NCOLOR`` for colorless output.
-
-Define ``DBG_OSTREAM=<my-ostream>`` for custom output stream (stderr
-by default).
-
 Just include `dbg.h`_ in your project to use it.
 
 Example
@@ -63,6 +56,16 @@ See `examples`_ for the files used in this example.
 Build and run:
 
 .. image:: https://github.com/eerimoq/dbg-macro/raw/master/docs/example-build-and-run.png
+
+Compile time configuration
+==========================
+
+Define ``NDBG`` to make the macros a no-op.
+
+Define ``DBG_NCOLOR`` for colorless output.
+
+Define ``DBG_OSTREAM=<my-ostream>`` for custom output stream (stderr
+by default).
 
 .. |buildstatus| image:: https://travis-ci.org/eerimoq/dbg-macro.svg?branch=master
 .. _buildstatus: https://travis-ci.org/eerimoq/dbg-macro
