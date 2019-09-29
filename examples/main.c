@@ -15,7 +15,7 @@ int main()
     dbg(message);  // main.c:15: message = "hello"
 
     const int a = 2;
-    const int b = dbg(3 * a) + 1;  // main.c:18: 3 * a = 6
+    const int b = dbg(3 * a) + 1;  // main.c:18: 3 * a = 6 (0x6)
 
     int numbers[2] = { b, 13 };
     dbga(numbers, 2);  // main.c:21: numbers = [7, 13] (length: 2)
