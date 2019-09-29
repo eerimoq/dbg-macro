@@ -39,7 +39,7 @@ TEST(dbg_output)
         dbg(1);
     }
 
-    ASSERT_EQ(output, FLF(dbg, 39) "1\x1b[0m = \x1b[01m1\n\x1b[0m");
+    ASSERT_EQ(output, FLF(dbg, 39) "1\x1b[0m = \x1b[01m1 (0x1)\n\x1b[0m");
 }
 
 TEST(dbgb_output)

@@ -35,7 +35,7 @@
 #include <stdio.h>
 
 /* Library version. */
-#define DBG_VERSION "0.5.0"
+#define DBG_VERSION "0.6.0"
 
 #ifndef NDBG
 /**
@@ -115,14 +115,19 @@
 #    define DBG_EXPR "\x1b[0m\x1b[36m\x1b[1m"
 #    define DBG_VALUE "\x1b[01m"
 #    define DBG_RESET "\x1b[0m"
-#    define DBG_FORMAT(format)                     \
-    DBG_LOC "%s:%d: (%s) " DBG_EXPR "%s" DBG_RESET \
+#    define DBG_FORMAT(format)                          \
+    DBG_LOC "%s:%d: (%s) " DBG_EXPR "%s" DBG_RESET      \
     " = " DBG_VALUE format "\n" DBG_RESET
-#    define DBG_FORMAT_ARRAY_BEGIN \
+#    define DBG_FORMAT_HEX(format, hexformat)                   \
+    DBG_LOC "%s:%d: (%s) " DBG_EXPR "%s" DBG_RESET              \
+    " = " DBG_VALUE format " (0x" hexformat ")\n" DBG_RESET
+#    define DBG_FORMAT_ARRAY_BEGIN                                      \
     DBG_LOC "%s:%d: (%s) " DBG_EXPR "%s" DBG_RESET " = " DBG_VALUE "["
 #    define DBG_FORMAT_ARRAY_END   "] (length: %u)\n" DBG_RESET
 #else
 #    define DBG_FORMAT(format)     "%s:%d: (%s) %s = " format "\n"
+#    define DBG_FORMAT_HEX(format, hexformat)           \
+    "%s:%d: (%s) %s = " format " (0x" hexformat ")\n"
 #    define DBG_FORMAT_ARRAY_BEGIN "%s:%d: (%s) %s = ["
 #    define DBG_FORMAT_ARRAY_END   "] (length: %u)\n"
 #endif
@@ -195,6 +200,27 @@ extern FILE *DBG_OSTREAM;
                 line,                                   \
                 func_p,                                 \
                 expr_p,                                 \
+                value);                                 \
+                                                        \
+        return (value);                                 \
+    }                                                   \
+    DBG_FUNC_CONST_P(name, type, format)                \
+    DBG_FUNC_P(name, type, format)
+
+#define DBG_FUNC_HEX(name, type, format, hexformat)     \
+    static inline type dbg_ ## name(const char *file_p, \
+                                    int line,           \
+                                    const char *func_p, \
+                                    const char *expr_p, \
+                                    type value)         \
+    {                                                   \
+        fprintf(DBG_OSTREAM,                            \
+                DBG_FORMAT_HEX(format, hexformat),      \
+                file_p,                                 \
+                line,                                   \
+                func_p,                                 \
+                expr_p,                                 \
+                value,                                  \
                 value);                                 \
                                                         \
         return (value);                                 \
@@ -324,14 +350,14 @@ static inline void *dbg_pointer(const char *file_p,
 DBG_FUNC_CHAR(char, char, "%hhi")
 DBG_FUNC_CHAR(schar, signed char, "%hhi")
 DBG_FUNC_CHAR(uchar, unsigned char, "%hhu")
-DBG_FUNC(short, short, "%hi")
-DBG_FUNC(ushort, unsigned short, "%hu")
-DBG_FUNC(int, int, "%d")
-DBG_FUNC(uint, unsigned int, "%u")
-DBG_FUNC(long, long, "%ld")
-DBG_FUNC(ulong, unsigned long, "%lu")
-DBG_FUNC(llong, long long, "%lld")
-DBG_FUNC(ullong, unsigned long long, "%llu")
+DBG_FUNC_HEX(short, short, "%hi", "%hx")
+DBG_FUNC_HEX(ushort, unsigned short, "%hu", "%hx")
+DBG_FUNC_HEX(int, int, "%d", "%x")
+DBG_FUNC_HEX(uint, unsigned int, "%u", "%x")
+DBG_FUNC_HEX(long, long, "%ld", "%lx")
+DBG_FUNC_HEX(ulong, unsigned long, "%lu", "%lx")
+DBG_FUNC_HEX(llong, long long, "%lld", "%llx")
+DBG_FUNC_HEX(ullong, unsigned long long, "%llu", "%llx")
 DBG_FUNC(float, float, "%f")
 DBG_FUNC(double, double, "%lf")
 

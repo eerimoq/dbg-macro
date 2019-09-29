@@ -49,7 +49,7 @@ TEST(dbg_output)
     ASSERT_GT(size, 0);
     ASSERT_LT(size, 1024);
     output[size] = '\0';
-    ASSERT_EQ((char *)output, FLF(dbg, 46) "1\x1b[0m = \x1b[01m1\n\x1b[0m");
+    ASSERT_EQ((char *)output, FLF(dbg, 46) "1\x1b[0m = \x1b[01m1 (0x1)\n\x1b[0m");
 }
 
 int main()
