@@ -275,6 +275,21 @@ TEST(pointer_output)
     ASSERT_SUBSTRING(output, FLF(pointer, 272) "&a = 0x");
 }
 
+TEST(hexdump_output)
+{
+    char buf[] = "123467890abcdefghijk";
+
+    CAPTURE_OUTPUT(output) {
+        dbgh(&buf[0], sizeof(buf));
+    }
+
+    ASSERT_SUBSTRING(
+        output,
+        FLF(hexdump, 283) "&buf[0] (size: 21):\n"
+        "    00000000: 31 32 33 34 36 37 38 39 30 61 62 63 64 65 66 67 '123467890abcdefg'\n"
+        "    00000010: 68 69 6a 6b 00                                  'hijk.'\n");
+}
+
 /* To test that the expression is evaluated once. */
 static char char_once(char value)
 {
@@ -377,6 +392,7 @@ int main()
         double_output,
         bool_output,
         pointer_output,
+        hexdump_output,
         char_logic,
         schar_logic,
         uchar_logic,

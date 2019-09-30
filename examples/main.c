@@ -13,6 +13,7 @@ int main()
 {
     char message[] = "hello";
     dbg(message);  // main.c:15: message = "hello"
+    dbgh(message, sizeof(message));
 
     const int a = 2;
     const int b = dbg(3 * a) + 1;  // main.c:18: 3 * a = 6 (0x6)

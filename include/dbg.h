@@ -33,9 +33,10 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdio.h>
+#include <ctype.h>
 
 /* Library version. */
-#define DBG_VERSION "0.6.0"
+#define DBG_VERSION "0.7.0"
 
 #ifndef NDBG
 /**
@@ -103,10 +104,18 @@
  */
 #    define dbgb(expr)                                    \
     dbg_bool(__FILE__, __LINE__, __func__, #expr, expr)
+
+/**
+ * Hexdump of given size at given address. Returns the result of given
+ * expression.
+ */
+#    define dbgh(expr, size)                                            \
+    dbg_hexdump(__FILE__, __LINE__, __func__, #expr, expr, size)
 #else
 #    define dbg(expr) (expr)
 #    define dbga(expr, length) (expr)
 #    define dbgb(expr) (expr)
+#    define dbgh(expr, size) (expr)
 #endif
 
 /* Colorful output selection. */
@@ -124,12 +133,16 @@
 #    define DBG_FORMAT_ARRAY_BEGIN                                      \
     DBG_LOC "%s:%d: (%s) " DBG_EXPR "%s" DBG_RESET " = " DBG_VALUE "["
 #    define DBG_FORMAT_ARRAY_END   "] (length: %u)\n" DBG_RESET
+#    define DBG_FORMAT_HEXDUMP_BEGIN                    \
+    DBG_LOC "%s:%d: (%s) " DBG_EXPR "%s " DBG_RESET "(size: %u):\n" DBG_VALUE
+#    define DBG_FORMAT_HEXDUMP_END DBG_RESET
 #else
 #    define DBG_FORMAT(format)     "%s:%d: (%s) %s = " format "\n"
 #    define DBG_FORMAT_HEX(format, hexformat)           \
     "%s:%d: (%s) %s = " format " (0x" hexformat ")\n"
 #    define DBG_FORMAT_ARRAY_BEGIN "%s:%d: (%s) %s = ["
 #    define DBG_FORMAT_ARRAY_END   "] (length: %u)\n"
+#    define DBG_FORMAT_HEXDUMP_BEGIN "%s:%d: (%s) %s (size: %u):\n"
 #endif
 
 /* Custom output stream. */
@@ -325,11 +338,11 @@ static inline const bool *dbg_const_bool_p(const char *file_p,
 }
 
 static inline bool *dbg_bool_p(const char *file_p,
-                 int line,
-                 const char *func_p,
-                 const char *expr_p,
-                 bool *value_p,
-                 int length)
+                               int line,
+                               const char *func_p,
+                               const char *expr_p,
+                               bool *value_p,
+                               int length)
 {
     (void)dbg_const_bool_p(file_p, line, func_p, expr_p, value_p, length);
 
@@ -360,5 +373,69 @@ DBG_FUNC_HEX(llong, long long, "%lld", "%llx")
 DBG_FUNC_HEX(ullong, unsigned long long, "%llu", "%llx")
 DBG_FUNC(float, float, "%f")
 DBG_FUNC(double, double, "%lf")
+
+static inline void dbg_print_ascii(const uint8_t *buf_p, size_t size)
+{
+    size_t i;
+
+    for (i = 0; i < 16 - size; i++) {
+        fprintf(DBG_OSTREAM, "   ");
+    }
+
+    fprintf(DBG_OSTREAM, "'");
+
+    for (i = 0; i < size; i++) {
+        fprintf(DBG_OSTREAM, "%c", isprint((int)buf_p[i]) ? buf_p[i] : '.');
+    }
+
+    fprintf(DBG_OSTREAM, "'");
+}
+
+static inline void dbg_hexdump(const char *file_p,
+                               int line,
+                               const char *func_p,
+                               const char *expr_p,
+                               const void *buf_p,
+                               size_t size)
+{
+    int pos;
+    const uint8_t *u8_buf_p;
+
+    u8_buf_p = buf_p;
+    pos = 0;
+
+    fprintf(DBG_OSTREAM,
+            DBG_FORMAT_HEXDUMP_BEGIN,
+            file_p,
+            line,
+            func_p,
+            expr_p,
+            (int)size);
+
+    while (size > 0) {
+        if ((pos % 16) == 0) {
+            fprintf(DBG_OSTREAM, "    %08x: ", pos);
+        }
+
+        fprintf(DBG_OSTREAM, "%02x ", u8_buf_p[pos] & 0xff);
+
+        if ((pos % 16) == 15) {
+            dbg_print_ascii(&u8_buf_p[pos - 15], 16);
+            fprintf(DBG_OSTREAM, "\n");
+        }
+
+        pos++;
+        size--;
+    }
+
+    if ((pos % 16) != 0) {
+        dbg_print_ascii(&u8_buf_p[pos - (pos % 16)], pos % 16);
+        fprintf(DBG_OSTREAM, "\n");
+    }
+
+#ifdef DBG_FORMAT_HEXDUMP_END
+    fprintf(DBG_OSTREAM, DBG_FORMAT_HEXDUMP_END);
+#endif
+}
 
 #endif

@@ -63,11 +63,26 @@ TEST(dbga_output)
               FLF(dbga, 59) "a\x1b[0m = \x1b[01m[1, 2, 3] (length: 3)\n\x1b[0m");
 }
 
+TEST(dbgh_output)
+{
+    uint8_t a[3] = { 1, 2, 3 };
+
+    CAPTURE_OUTPUT(output) {
+        dbgh(a, sizeof(a));
+    }
+
+    ASSERT_EQ(output,
+              FLF(dbgh, 71) "a \x1b[0m(size: 3):\n\x1b[01m"
+              "    00000000: 01 02 03                                        '...'\n"
+              "\x1b[0m");
+}
+
 int main()
 {
     return RUN_TESTS(
         dbg_output,
         dbgb_output,
-        dbga_output
+        dbga_output,
+        dbgh_output
     );
 }
