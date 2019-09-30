@@ -275,19 +275,246 @@ TEST(pointer_output)
     ASSERT_SUBSTRING(output, FLF(pointer, 272) "&a = 0x");
 }
 
-TEST(hexdump_output)
+TEST(char_hexdump_output)
 {
-    char buf[] = "123467890abcdefghijk";
-
     CAPTURE_OUTPUT(output) {
-        dbgh(&buf[0], sizeof(buf));
+        dbgh((char *)"hello", 6);
+        dbgh((const char *)"hello", 6);
     }
 
-    ASSERT_SUBSTRING(
+    ASSERT_EQ(
         output,
-        FLF(hexdump, 283) "&buf[0] (size: 21):\n"
-        "    00000000: 31 32 33 34 36 37 38 39 30 61 62 63 64 65 66 67 '123467890abcdefg'\n"
-        "    00000010: 68 69 6a 6b 00                                  'hijk.'\n");
+        FLF(char_hexdump, 281) "(char *)\"hello\" (size: 6):\n"
+        "    00000000: 68 65 6c 6c 6f 00                               'hello.'\n"
+        FLF(char_hexdump, 282) "(const char *)\"hello\" (size: 6):\n"
+        "    00000000: 68 65 6c 6c 6f 00                               'hello.'\n");
+}
+
+TEST(schar_hexdump_output)
+{
+    CAPTURE_OUTPUT(output) {
+        dbgh((signed char *)"hello", 6);
+        dbgh((const signed char *)"hello", 6);
+    }
+
+    ASSERT_EQ(
+        output,
+        FLF(schar_hexdump, 296) "(signed char *)\"hello\" (size: 6):\n"
+        "    00000000: 68 65 6c 6c 6f 00                               'hello.'\n"
+        FLF(schar_hexdump, 297) "(const signed char *)\"hello\" (size: 6):\n"
+        "    00000000: 68 65 6c 6c 6f 00                               'hello.'\n");
+}
+
+TEST(uchar_hexdump_output)
+{
+    CAPTURE_OUTPUT(output) {
+        dbgh((unsigned char *)"hello", 6);
+        dbgh((const unsigned char *)"hello", 6);
+    }
+
+    ASSERT_EQ(
+        output,
+        FLF(uchar_hexdump, 311) "(unsigned char *)\"hello\" (size: 6):\n"
+        "    00000000: 68 65 6c 6c 6f 00                               'hello.'\n"
+        FLF(uchar_hexdump, 312) "(const unsigned char *)\"hello\" (size: 6):\n"
+        "    00000000: 68 65 6c 6c 6f 00                               'hello.'\n");
+}
+
+TEST(short_hexdump_output)
+{
+    short array[] = { 1, 2 };
+    const short const_array[] = { 1, 2 };
+
+    CAPTURE_OUTPUT(output) {
+        dbgh(array, sizeof(array));
+        dbgh(const_array, sizeof(const_array));
+    }
+
+    ASSERT_EQ(
+        output,
+        FLF(short_hexdump, 329) "array (size: 4):\n"
+        "    00000000: 01 00 02 00                                     '....'\n"
+        FLF(short_hexdump, 330) "const_array (size: 4):\n"
+        "    00000000: 01 00 02 00                                     '....'\n");
+}
+
+TEST(ushort_hexdump_output)
+{
+    unsigned short array[] = { 1, 2 };
+    const unsigned short const_array[] = { 1, 2 };
+
+    CAPTURE_OUTPUT(output) {
+        dbgh(array, sizeof(array));
+        dbgh(const_array, sizeof(const_array));
+    }
+
+    ASSERT_EQ(
+        output,
+        FLF(ushort_hexdump, 347) "array (size: 4):\n"
+        "    00000000: 01 00 02 00                                     '....'\n"
+        FLF(ushort_hexdump, 348) "const_array (size: 4):\n"
+        "    00000000: 01 00 02 00                                     '....'\n");
+}
+
+TEST(int_hexdump_output)
+{
+    int array[] = { 1, 2 };
+    const int const_array[] = { 1, 2 };
+
+    CAPTURE_OUTPUT(output) {
+        dbgh(array, sizeof(array));
+        dbgh(const_array, sizeof(const_array));
+    }
+
+    ASSERT_EQ(
+        output,
+        FLF(int_hexdump, 365) "array (size: 8):\n"
+        "    00000000: 01 00 00 00 02 00 00 00                         '........'\n"
+        FLF(int_hexdump, 366) "const_array (size: 8):\n"
+        "    00000000: 01 00 00 00 02 00 00 00                         '........'\n");
+}
+
+TEST(uint_hexdump_output)
+{
+    unsigned int array[] = { 1, 2 };
+    const unsigned int const_array[] = { 1, 2 };
+
+    CAPTURE_OUTPUT(output) {
+        dbgh(array, sizeof(array));
+        dbgh(const_array, sizeof(const_array));
+    }
+
+    ASSERT_EQ(
+        output,
+        FLF(uint_hexdump, 383) "array (size: 8):\n"
+        "    00000000: 01 00 00 00 02 00 00 00                         '........'\n"
+        FLF(uint_hexdump, 384) "const_array (size: 8):\n"
+        "    00000000: 01 00 00 00 02 00 00 00                         '........'\n");
+}
+
+TEST(long_hexdump_output)
+{
+    long array[] = { 1, 2 };
+    const long const_array[] = { 1, 2 };
+
+    CAPTURE_OUTPUT(output) {
+        dbgh(array, sizeof(array));
+        dbgh(const_array, sizeof(const_array));
+    }
+
+    ASSERT_EQ(
+        output,
+        FLF(long_hexdump, 401) "array (size: 16):\n"
+        "    00000000: 01 00 00 00 00 00 00 00 02 00 00 00 00 00 00 00 '................'\n"
+        FLF(long_hexdump, 402) "const_array (size: 16):\n"
+        "    00000000: 01 00 00 00 00 00 00 00 02 00 00 00 00 00 00 00 '................'\n");
+}
+
+TEST(ulong_hexdump_output)
+{
+    unsigned long array[] = { 1, 2 };
+    const unsigned long const_array[] = { 1, 2 };
+
+    CAPTURE_OUTPUT(output) {
+        dbgh(array, sizeof(array));
+        dbgh(const_array, sizeof(const_array));
+    }
+
+    ASSERT_EQ(
+        output,
+        FLF(ulong_hexdump, 419) "array (size: 16):\n"
+        "    00000000: 01 00 00 00 00 00 00 00 02 00 00 00 00 00 00 00 '................'\n"
+        FLF(ulong_hexdump, 420) "const_array (size: 16):\n"
+        "    00000000: 01 00 00 00 00 00 00 00 02 00 00 00 00 00 00 00 '................'\n");
+}
+
+TEST(llong_hexdump_output)
+{
+    long long array[] = { 1, 2 };
+    const long long const_array[] = { 1, 2 };
+
+    CAPTURE_OUTPUT(output) {
+        dbgh(array, sizeof(array));
+        dbgh(const_array, sizeof(const_array));
+    }
+
+    ASSERT_EQ(
+        output,
+        FLF(llong_hexdump, 437) "array (size: 16):\n"
+        "    00000000: 01 00 00 00 00 00 00 00 02 00 00 00 00 00 00 00 '................'\n"
+        FLF(llong_hexdump, 438) "const_array (size: 16):\n"
+        "    00000000: 01 00 00 00 00 00 00 00 02 00 00 00 00 00 00 00 '................'\n");
+}
+
+TEST(ullong_hexdump_output)
+{
+    unsigned long long array[] = { 1, 2 };
+    const unsigned long long const_array[] = { 1, 2 };
+
+    CAPTURE_OUTPUT(output) {
+        dbgh(array, sizeof(array));
+        dbgh(const_array, sizeof(const_array));
+    }
+
+    ASSERT_EQ(
+        output,
+        FLF(ullong_hexdump, 455) "array (size: 16):\n"
+        "    00000000: 01 00 00 00 00 00 00 00 02 00 00 00 00 00 00 00 '................'\n"
+        FLF(ullong_hexdump, 456) "const_array (size: 16):\n"
+        "    00000000: 01 00 00 00 00 00 00 00 02 00 00 00 00 00 00 00 '................'\n");
+}
+
+TEST(float_hexdump_output)
+{
+    float array[] = { 1, 2 };
+    const float const_array[] = { 1, 2 };
+
+    CAPTURE_OUTPUT(output) {
+        dbgh(array, sizeof(array));
+        dbgh(const_array, sizeof(const_array));
+    }
+
+    ASSERT_EQ(
+        output,
+        FLF(float_hexdump, 473) "array (size: 8):\n"
+        "    00000000: 00 00 80 3f 00 00 00 40                         '...?...@'\n"
+        FLF(float_hexdump, 474) "const_array (size: 8):\n"
+        "    00000000: 00 00 80 3f 00 00 00 40                         '...?...@'\n");
+}
+
+TEST(double_hexdump_output)
+{
+    double array[] = { 1, 2 };
+    const double const_array[] = { 1, 2 };
+
+    CAPTURE_OUTPUT(output) {
+        dbgh(array, sizeof(array));
+        dbgh(const_array, sizeof(const_array));
+    }
+
+    ASSERT_EQ(
+        output,
+        FLF(double_hexdump, 491) "array (size: 16):\n"
+        "    00000000: 00 00 00 00 00 00 f0 3f 00 00 00 00 00 00 00 40 '.......?.......@'\n"
+        FLF(double_hexdump, 492) "const_array (size: 16):\n"
+        "    00000000: 00 00 00 00 00 00 f0 3f 00 00 00 00 00 00 00 40 '.......?.......@'\n");
+}
+
+TEST(void_p_hexdump_output)
+{
+    int a = 1;
+
+    CAPTURE_OUTPUT(output) {
+        dbgh((void *)&a, sizeof(a));
+        dbgh((const void *)&a, sizeof(a));
+    }
+
+    ASSERT_EQ(
+        output,
+        FLF(void_p_hexdump, 508) "(void *)&a (size: 4):\n"
+        "    00000000: 01 00 00 00                                     '....'\n"
+        FLF(void_p_hexdump, 509) "(const void *)&a (size: 4):\n"
+        "    00000000: 01 00 00 00                                     '....'\n");
 }
 
 /* To test that the expression is evaluated once. */
@@ -306,7 +533,10 @@ static char char_once(char value)
 
 TEST(char_logic)
 {
+    char v = 1;
+
     ASSERT_EQ(dbg(char_once('a')), 'a');
+    ASSERT_EQ(dbgh(&v, sizeof(v)), &v);
 }
 
 TEST(schar_logic)
@@ -392,7 +622,20 @@ int main()
         double_output,
         bool_output,
         pointer_output,
-        hexdump_output,
+        char_hexdump_output,
+        schar_hexdump_output,
+        uchar_hexdump_output,
+        short_hexdump_output,
+        ushort_hexdump_output,
+        int_hexdump_output,
+        uint_hexdump_output,
+        long_hexdump_output,
+        ulong_hexdump_output,
+        llong_hexdump_output,
+        ullong_hexdump_output,
+        float_hexdump_output,
+        double_hexdump_output,
+        void_p_hexdump_output,
         char_logic,
         schar_logic,
         uchar_logic,

@@ -8,14 +8,14 @@ Three macros that prints and returns the value of a given expression
 for quick and dirty debugging, inspired by Rusts `dbg!(…) macro`_ and
 its `C++ variant`_.
 
-``dbg(...)`` for primitive data types (int, float, etc.), strings and
+``dbg(expr)`` for primitive data types (int, float, etc.), strings and
 pointers.
 
-``dbgb(...)`` to force boolean true/false output.
+``dbgb(expr)`` to force boolean true/false output.
 
-``dbga(...)`` for array of primitive data types.
+``dbga(expr, length)`` for array of primitive data types.
 
-``dbgh(...)`` for hexdump output.
+``dbgh(expr, size)`` for hexdump output.
 
 Just include `dbg.h`_ in your project to use it.
 

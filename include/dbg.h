@@ -36,7 +36,7 @@
 #include <ctype.h>
 
 /* Library version. */
-#define DBG_VERSION "0.7.0"
+#define DBG_VERSION "0.8.0"
 
 #ifndef NDBG
 /**
@@ -110,7 +110,36 @@
  * expression.
  */
 #    define dbgh(expr, size)                                            \
-    dbg_hexdump(__FILE__, __LINE__, __func__, #expr, expr, size)
+    _Generic((expr),                                                    \
+             char *: dbg_hexdump_char_p,                                \
+             const char *: dbg_hexdump_const_char_p,                    \
+             signed char *: dbg_hexdump_schar_p,                        \
+             const signed char *: dbg_hexdump_const_schar_p,            \
+             unsigned char *: dbg_hexdump_uchar_p,                      \
+             const unsigned char *: dbg_hexdump_const_uchar_p,          \
+             short *: dbg_hexdump_short_p,                              \
+             const short *: dbg_hexdump_const_short_p,                  \
+             unsigned short *: dbg_hexdump_ushort_p,                    \
+             const unsigned short *: dbg_hexdump_const_ushort_p,        \
+             int *: dbg_hexdump_int_p,                                  \
+             const int *: dbg_hexdump_const_int_p,                      \
+             unsigned int *: dbg_hexdump_uint_p,                        \
+             const unsigned int *: dbg_hexdump_const_uint_p,            \
+             long *: dbg_hexdump_long_p,                                \
+             const long *: dbg_hexdump_const_long_p,                    \
+             unsigned long *: dbg_hexdump_ulong_p,                      \
+             const unsigned long *: dbg_hexdump_const_ulong_p,          \
+             long long *: dbg_hexdump_llong_p,                          \
+             const long long *: dbg_hexdump_const_llong_p,              \
+             unsigned long long *: dbg_hexdump_ullong_p,                \
+             const unsigned long long *: dbg_hexdump_const_ullong_p,    \
+             float *: dbg_hexdump_float_p,                              \
+             const float *: dbg_hexdump_const_float_p,                  \
+             double *: dbg_hexdump_double_p,                            \
+             const double *: dbg_hexdump_const_double_p,                \
+             void *: dbg_hexdump_p,                                     \
+             const void *: dbg_hexdump_const_p)                         \
+    (__FILE__, __LINE__, __func__, #expr, expr, size)
 #else
 #    define dbg(expr) (expr)
 #    define dbga(expr, length) (expr)
@@ -200,6 +229,43 @@ extern FILE *DBG_OSTREAM;
         return (value_p);                                       \
     }
 
+#define DBG_FUNC_HEXDUMP_CONST_P(name, type)                    \
+    static inline const type *dbg_hexdump_const_ ## name ## _p( \
+        const char *file_p,                                     \
+        int line,                                               \
+        const char *func_p,                                     \
+        const char *expr_p,                                     \
+        const type *value_p,                                    \
+        size_t size)                                            \
+    {                                                           \
+        dbg_hexdump(file_p,                                     \
+                    line,                                       \
+                    func_p,                                     \
+                    expr_p,                                     \
+                    (const void *)value_p,                      \
+                    size);                                      \
+                                                                \
+        return (value_p);                                       \
+    }
+
+#define DBG_FUNC_HEXDUMP_P(name, type)                                  \
+    static inline type *dbg_hexdump_ ## name ## _p(const char *file_p,  \
+                                                   int line,            \
+                                                   const char *func_p,  \
+                                                   const char *expr_p,  \
+                                                   type *value_p,       \
+                                                   size_t size)         \
+    {                                                                   \
+        dbg_hexdump_const_ ## name ## _p(file_p,                        \
+                                         line,                          \
+                                         func_p,                        \
+                                         expr_p,                        \
+                                         value_p,                       \
+                                         size);                         \
+                                                                        \
+        return (value_p);                                               \
+    }
+
 #define DBG_FUNC(name, type, format)                    \
     static inline type dbg_ ## name(const char *file_p, \
                                     int line,           \
@@ -218,7 +284,9 @@ extern FILE *DBG_OSTREAM;
         return (value);                                 \
     }                                                   \
     DBG_FUNC_CONST_P(name, type, format)                \
-    DBG_FUNC_P(name, type, format)
+    DBG_FUNC_P(name, type, format)                      \
+    DBG_FUNC_HEXDUMP_CONST_P(name, type)                \
+    DBG_FUNC_HEXDUMP_P(name, type)
 
 #define DBG_FUNC_HEX(name, type, format, hexformat)     \
     static inline type dbg_ ## name(const char *file_p, \
@@ -239,7 +307,9 @@ extern FILE *DBG_OSTREAM;
         return (value);                                 \
     }                                                   \
     DBG_FUNC_CONST_P(name, type, format)                \
-    DBG_FUNC_P(name, type, format)
+    DBG_FUNC_P(name, type, format)                      \
+    DBG_FUNC_HEXDUMP_CONST_P(name, type)                \
+    DBG_FUNC_HEXDUMP_P(name, type)
 
 #define DBG_FUNC_CHAR_CONST_P(name, type)               \
     static inline const type *dbg_const_ ## name ## _p( \
@@ -290,7 +360,9 @@ extern FILE *DBG_OSTREAM;
         return (value);                                 \
     }                                                   \
     DBG_FUNC_CHAR_CONST_P(name, type)                   \
-    DBG_FUNC_CHAR_P(name, type)
+    DBG_FUNC_CHAR_P(name, type)                         \
+    DBG_FUNC_HEXDUMP_CONST_P(name, type)                \
+    DBG_FUNC_HEXDUMP_P(name, type)
 
 static inline const char *dbg_format_bool(bool value)
 {
@@ -360,20 +432,6 @@ static inline void *dbg_pointer(const char *file_p,
     return (value_p);
 }
 
-DBG_FUNC_CHAR(char, char, "%hhi")
-DBG_FUNC_CHAR(schar, signed char, "%hhi")
-DBG_FUNC_CHAR(uchar, unsigned char, "%hhu")
-DBG_FUNC_HEX(short, short, "%hi", "%hx")
-DBG_FUNC_HEX(ushort, unsigned short, "%hu", "%hx")
-DBG_FUNC_HEX(int, int, "%d", "%x")
-DBG_FUNC_HEX(uint, unsigned int, "%u", "%x")
-DBG_FUNC_HEX(long, long, "%ld", "%lx")
-DBG_FUNC_HEX(ulong, unsigned long, "%lu", "%lx")
-DBG_FUNC_HEX(llong, long long, "%lld", "%llx")
-DBG_FUNC_HEX(ullong, unsigned long long, "%llu", "%llx")
-DBG_FUNC(float, float, "%f")
-DBG_FUNC(double, double, "%lf")
-
 static inline void dbg_print_ascii(const uint8_t *buf_p, size_t size)
 {
     size_t i;
@@ -437,5 +495,43 @@ static inline void dbg_hexdump(const char *file_p,
     fprintf(DBG_OSTREAM, DBG_FORMAT_HEXDUMP_END);
 #endif
 }
+
+static inline void *dbg_hexdump_p(const char *file_p,
+                                  int line,
+                                  const char *func_p,
+                                  const char *expr_p,
+                                  void *buf_p,
+                                  size_t size)
+{
+    dbg_hexdump(file_p, line, func_p, expr_p, buf_p, size);
+
+    return (buf_p);
+}
+
+static inline const void *dbg_hexdump_const_p(const char *file_p,
+                                              int line,
+                                              const char *func_p,
+                                              const char *expr_p,
+                                              const void *buf_p,
+                                              size_t size)
+{
+    dbg_hexdump(file_p, line, func_p, expr_p, buf_p, size);
+
+    return (buf_p);
+}
+
+DBG_FUNC_CHAR(char, char, "%hhi")
+DBG_FUNC_CHAR(schar, signed char, "%hhi")
+DBG_FUNC_CHAR(uchar, unsigned char, "%hhu")
+DBG_FUNC_HEX(short, short, "%hi", "%hx")
+DBG_FUNC_HEX(ushort, unsigned short, "%hu", "%hx")
+DBG_FUNC_HEX(int, int, "%d", "%x")
+DBG_FUNC_HEX(uint, unsigned int, "%u", "%x")
+DBG_FUNC_HEX(long, long, "%ld", "%lx")
+DBG_FUNC_HEX(ulong, unsigned long, "%lu", "%lx")
+DBG_FUNC_HEX(llong, long long, "%lld", "%llx")
+DBG_FUNC_HEX(ullong, unsigned long long, "%llu", "%llx")
+DBG_FUNC(float, float, "%f")
+DBG_FUNC(double, double, "%lf")
 
 #endif
