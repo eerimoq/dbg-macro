@@ -46,10 +46,10 @@ See `examples`_ for the files used in this example.
        dbgh(message, sizeof(message));
 
        const int a = 2;
-       const int b = dbg(3 * a) + 1;  // main.c:18: 3 * a = 6 (0x6)
+       const int b = dbg(3 * a) + 1;  // main.c:19: 3 * a = 6 (0x6)
 
        int numbers[2] = { b, 13 };
-       dbga(numbers, 2);  // main.c:21: numbers = [7, 13] (length: 2)
+       dbga(numbers, 2);  // main.c:22: numbers = [7, 13] (length: 2)
 
        dbg(factorial(4));
 
