@@ -73,7 +73,7 @@ TEST(dbgh_output)
 
     ASSERT_EQ(output,
               FLF(dbgh, 71) "a \x1b[0m(size: 3):\n\x1b[01m"
-              "    00000000: 01 02 03                                        '...'\n"
+              "    00000000: 01 02 03                                         '...'\n"
               "\x1b[0m");
 }
 

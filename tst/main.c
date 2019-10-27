@@ -285,9 +285,9 @@ TEST(char_hexdump_output)
     ASSERT_EQ(
         output,
         FLF(char_hexdump, 281) "(char *)\"hello\" (size: 6):\n"
-        "    00000000: 68 65 6c 6c 6f 00                               'hello.'\n"
+        "    00000000: 68 65 6c 6c 6f 00                                'hello.'\n"
         FLF(char_hexdump, 282) "(const char *)\"hello\" (size: 6):\n"
-        "    00000000: 68 65 6c 6c 6f 00                               'hello.'\n");
+        "    00000000: 68 65 6c 6c 6f 00                                'hello.'\n");
 }
 
 TEST(schar_hexdump_output)
@@ -300,9 +300,9 @@ TEST(schar_hexdump_output)
     ASSERT_EQ(
         output,
         FLF(schar_hexdump, 296) "(signed char *)\"hello\" (size: 6):\n"
-        "    00000000: 68 65 6c 6c 6f 00                               'hello.'\n"
+        "    00000000: 68 65 6c 6c 6f 00                                'hello.'\n"
         FLF(schar_hexdump, 297) "(const signed char *)\"hello\" (size: 6):\n"
-        "    00000000: 68 65 6c 6c 6f 00                               'hello.'\n");
+        "    00000000: 68 65 6c 6c 6f 00                                'hello.'\n");
 }
 
 TEST(uchar_hexdump_output)
@@ -315,9 +315,9 @@ TEST(uchar_hexdump_output)
     ASSERT_EQ(
         output,
         FLF(uchar_hexdump, 311) "(unsigned char *)\"hello\" (size: 6):\n"
-        "    00000000: 68 65 6c 6c 6f 00                               'hello.'\n"
+        "    00000000: 68 65 6c 6c 6f 00                                'hello.'\n"
         FLF(uchar_hexdump, 312) "(const unsigned char *)\"hello\" (size: 6):\n"
-        "    00000000: 68 65 6c 6c 6f 00                               'hello.'\n");
+        "    00000000: 68 65 6c 6c 6f 00                                'hello.'\n");
 }
 
 TEST(short_hexdump_output)
@@ -333,9 +333,9 @@ TEST(short_hexdump_output)
     ASSERT_EQ(
         output,
         FLF(short_hexdump, 329) "array (size: 4):\n"
-        "    00000000: 01 00 02 00                                     '....'\n"
+        "    00000000: 01 00 02 00                                      '....'\n"
         FLF(short_hexdump, 330) "const_array (size: 4):\n"
-        "    00000000: 01 00 02 00                                     '....'\n");
+        "    00000000: 01 00 02 00                                      '....'\n");
 }
 
 TEST(ushort_hexdump_output)
@@ -351,9 +351,9 @@ TEST(ushort_hexdump_output)
     ASSERT_EQ(
         output,
         FLF(ushort_hexdump, 347) "array (size: 4):\n"
-        "    00000000: 01 00 02 00                                     '....'\n"
+        "    00000000: 01 00 02 00                                      '....'\n"
         FLF(ushort_hexdump, 348) "const_array (size: 4):\n"
-        "    00000000: 01 00 02 00                                     '....'\n");
+        "    00000000: 01 00 02 00                                      '....'\n");
 }
 
 TEST(int_hexdump_output)
@@ -369,9 +369,9 @@ TEST(int_hexdump_output)
     ASSERT_EQ(
         output,
         FLF(int_hexdump, 365) "array (size: 8):\n"
-        "    00000000: 01 00 00 00 02 00 00 00                         '........'\n"
+        "    00000000: 01 00 00 00 02 00 00 00                          '........'\n"
         FLF(int_hexdump, 366) "const_array (size: 8):\n"
-        "    00000000: 01 00 00 00 02 00 00 00                         '........'\n");
+        "    00000000: 01 00 00 00 02 00 00 00                          '........'\n");
 }
 
 TEST(uint_hexdump_output)
@@ -387,9 +387,9 @@ TEST(uint_hexdump_output)
     ASSERT_EQ(
         output,
         FLF(uint_hexdump, 383) "array (size: 8):\n"
-        "    00000000: 01 00 00 00 02 00 00 00                         '........'\n"
+        "    00000000: 01 00 00 00 02 00 00 00                          '........'\n"
         FLF(uint_hexdump, 384) "const_array (size: 8):\n"
-        "    00000000: 01 00 00 00 02 00 00 00                         '........'\n");
+        "    00000000: 01 00 00 00 02 00 00 00                          '........'\n");
 }
 
 TEST(long_hexdump_output)
@@ -405,9 +405,9 @@ TEST(long_hexdump_output)
     ASSERT_EQ(
         output,
         FLF(long_hexdump, 401) "array (size: 16):\n"
-        "    00000000: 01 00 00 00 00 00 00 00 02 00 00 00 00 00 00 00 '................'\n"
+        "    00000000: 01 00 00 00 00 00 00 00  02 00 00 00 00 00 00 00 '................'\n"
         FLF(long_hexdump, 402) "const_array (size: 16):\n"
-        "    00000000: 01 00 00 00 00 00 00 00 02 00 00 00 00 00 00 00 '................'\n");
+        "    00000000: 01 00 00 00 00 00 00 00  02 00 00 00 00 00 00 00 '................'\n");
 }
 
 TEST(ulong_hexdump_output)
@@ -423,9 +423,9 @@ TEST(ulong_hexdump_output)
     ASSERT_EQ(
         output,
         FLF(ulong_hexdump, 419) "array (size: 16):\n"
-        "    00000000: 01 00 00 00 00 00 00 00 02 00 00 00 00 00 00 00 '................'\n"
+        "    00000000: 01 00 00 00 00 00 00 00  02 00 00 00 00 00 00 00 '................'\n"
         FLF(ulong_hexdump, 420) "const_array (size: 16):\n"
-        "    00000000: 01 00 00 00 00 00 00 00 02 00 00 00 00 00 00 00 '................'\n");
+        "    00000000: 01 00 00 00 00 00 00 00  02 00 00 00 00 00 00 00 '................'\n");
 }
 
 TEST(llong_hexdump_output)
@@ -441,9 +441,9 @@ TEST(llong_hexdump_output)
     ASSERT_EQ(
         output,
         FLF(llong_hexdump, 437) "array (size: 16):\n"
-        "    00000000: 01 00 00 00 00 00 00 00 02 00 00 00 00 00 00 00 '................'\n"
+        "    00000000: 01 00 00 00 00 00 00 00  02 00 00 00 00 00 00 00 '................'\n"
         FLF(llong_hexdump, 438) "const_array (size: 16):\n"
-        "    00000000: 01 00 00 00 00 00 00 00 02 00 00 00 00 00 00 00 '................'\n");
+        "    00000000: 01 00 00 00 00 00 00 00  02 00 00 00 00 00 00 00 '................'\n");
 }
 
 TEST(ullong_hexdump_output)
@@ -459,9 +459,9 @@ TEST(ullong_hexdump_output)
     ASSERT_EQ(
         output,
         FLF(ullong_hexdump, 455) "array (size: 16):\n"
-        "    00000000: 01 00 00 00 00 00 00 00 02 00 00 00 00 00 00 00 '................'\n"
+        "    00000000: 01 00 00 00 00 00 00 00  02 00 00 00 00 00 00 00 '................'\n"
         FLF(ullong_hexdump, 456) "const_array (size: 16):\n"
-        "    00000000: 01 00 00 00 00 00 00 00 02 00 00 00 00 00 00 00 '................'\n");
+        "    00000000: 01 00 00 00 00 00 00 00  02 00 00 00 00 00 00 00 '................'\n");
 }
 
 TEST(float_hexdump_output)
@@ -477,9 +477,9 @@ TEST(float_hexdump_output)
     ASSERT_EQ(
         output,
         FLF(float_hexdump, 473) "array (size: 8):\n"
-        "    00000000: 00 00 80 3f 00 00 00 40                         '...?...@'\n"
+        "    00000000: 00 00 80 3f 00 00 00 40                          '...?...@'\n"
         FLF(float_hexdump, 474) "const_array (size: 8):\n"
-        "    00000000: 00 00 80 3f 00 00 00 40                         '...?...@'\n");
+        "    00000000: 00 00 80 3f 00 00 00 40                          '...?...@'\n");
 }
 
 TEST(double_hexdump_output)
@@ -495,9 +495,9 @@ TEST(double_hexdump_output)
     ASSERT_EQ(
         output,
         FLF(double_hexdump, 491) "array (size: 16):\n"
-        "    00000000: 00 00 00 00 00 00 f0 3f 00 00 00 00 00 00 00 40 '.......?.......@'\n"
+        "    00000000: 00 00 00 00 00 00 f0 3f  00 00 00 00 00 00 00 40 '.......?.......@'\n"
         FLF(double_hexdump, 492) "const_array (size: 16):\n"
-        "    00000000: 00 00 00 00 00 00 f0 3f 00 00 00 00 00 00 00 40 '.......?.......@'\n");
+        "    00000000: 00 00 00 00 00 00 f0 3f  00 00 00 00 00 00 00 40 '.......?.......@'\n");
 }
 
 TEST(void_p_hexdump_output)
@@ -512,9 +512,37 @@ TEST(void_p_hexdump_output)
     ASSERT_EQ(
         output,
         FLF(void_p_hexdump, 508) "(void *)&a (size: 4):\n"
-        "    00000000: 01 00 00 00                                     '....'\n"
+        "    00000000: 01 00 00 00                                      '....'\n"
         FLF(void_p_hexdump, 509) "(const void *)&a (size: 4):\n"
-        "    00000000: 01 00 00 00                                     '....'\n");
+        "    00000000: 01 00 00 00                                      '....'\n");
+}
+
+TEST(hexdump_lengths_output)
+{
+    char array_1[] = { 1 };
+    char array_7[] = { 1, 2, 3, 4, 5, 6, 7 };
+    char array_8[] = { 1, 2, 3, 4, 5, 6, 7, 8 };
+    char array_9[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+
+    CAPTURE_OUTPUT(output) {
+        dbgh(array_1, 0);
+        dbgh(array_1, sizeof(array_1));
+        dbgh(array_7, sizeof(array_7));
+        dbgh(array_8, sizeof(array_8));
+        dbgh(array_9, sizeof(array_9));
+    }
+
+    ASSERT_EQ(
+        output,
+        FLF(hexdump_lengths, 528) "array_1 (size: 0):\n"
+        FLF(hexdump_lengths, 529) "array_1 (size: 1):\n"
+        "    00000000: 01                                               '.'\n"
+        FLF(hexdump_lengths, 530) "array_7 (size: 7):\n"
+        "    00000000: 01 02 03 04 05 06 07                             '.......'\n"
+        FLF(hexdump_lengths, 531) "array_8 (size: 8):\n"
+        "    00000000: 01 02 03 04 05 06 07 08                          '........'\n"
+        FLF(hexdump_lengths, 532) "array_9 (size: 9):\n"
+        "    00000000: 01 02 03 04 05 06 07 08  09                      '.........'\n");
 }
 
 /* To test that the expression is evaluated once. */
@@ -636,6 +664,7 @@ int main()
         float_hexdump_output,
         double_hexdump_output,
         void_p_hexdump_output,
+        hexdump_lengths_output,
         char_logic,
         schar_logic,
         uchar_logic,

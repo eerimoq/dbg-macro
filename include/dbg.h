@@ -36,7 +36,7 @@
 #include <ctype.h>
 
 /* Library version. */
-#define DBG_VERSION "0.8.0"
+#define DBG_VERSION "0.9.0"
 
 #ifndef NDBG
 /**
@@ -436,6 +436,10 @@ static inline void dbg_print_ascii(const uint8_t *buf_p, size_t size)
 {
     size_t i;
 
+    if (size < 8) {
+        fprintf(DBG_OSTREAM, " ");
+    }
+
     for (i = 0; i < 16 - size; i++) {
         fprintf(DBG_OSTREAM, "   ");
     }
@@ -476,6 +480,10 @@ static inline void dbg_hexdump(const char *file_p,
         }
 
         fprintf(DBG_OSTREAM, "%02x ", u8_buf_p[pos] & 0xff);
+
+        if ((pos % 16) == 7) {
+            fprintf(DBG_OSTREAM, " ");
+        }
 
         if ((pos % 16) == 15) {
             dbg_print_ascii(&u8_buf_p[pos - 15], 16);
