@@ -17,6 +17,8 @@ pointers.
 
 ``dbgh(expr, size)`` for hexdump output.
 
+``dbge(expr)`` for negative error codes.
+
 Just include `dbg.h`_ in your project to use it.
 
 Example

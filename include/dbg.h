@@ -36,7 +36,7 @@
 #include <ctype.h>
 
 /* Library version. */
-#define DBG_VERSION "0.9.0"
+#define DBG_VERSION "0.10.0"
 
 #ifndef NDBG
 /**
@@ -140,11 +140,18 @@
              void *: dbg_hexdump_p,                                     \
              const void *: dbg_hexdump_const_p)                         \
     (__FILE__, __LINE__, __func__, #expr, expr, size)
+
+/**
+ * For negative error codes. Returns the result of given expression.
+ */
+#    define dbge(expr)                                  \
+    dbg_error(__FILE__, __LINE__, __func__, #expr, expr)
 #else
 #    define dbg(expr) (expr)
 #    define dbga(expr, length) (expr)
 #    define dbgb(expr) (expr)
 #    define dbgh(expr, size) (expr)
+#    define dbge(expr) (expr)
 #endif
 
 /* Colorful output selection. */
@@ -541,5 +548,32 @@ DBG_FUNC_HEX(llong, long long, "%lld", "%llx")
 DBG_FUNC_HEX(ullong, unsigned long long, "%llu", "%llx")
 DBG_FUNC(float, float, "%f")
 DBG_FUNC(double, double, "%lf")
+
+static inline int dbg_error(const char *file_p,
+                            int line,
+                            const char *func_p,
+                            const char *expr_p,
+                            int error)
+{
+    char string[128];
+    char buf[256];
+
+    if (error < 0) {
+        strerror_r(-error, &string[0], sizeof(string));
+        snprintf(&buf[0], sizeof(buf), "%d (%s)", error, &string[0]);
+        buf[sizeof(buf) - 1] = '\0';
+        fprintf(DBG_OSTREAM,
+                DBG_FORMAT("%s"),
+                file_p,
+                line,
+                func_p,
+                expr_p,
+                &buf[0]);
+    } else {
+        dbg_int(file_p, line, func_p, expr_p, error);
+    }
+
+    return (error);
+}
 
 #endif

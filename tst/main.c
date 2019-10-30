@@ -27,8 +27,8 @@
  */
 
 #include "dbg.h"
+#include "errno.h"
 #include "narwhal.h"
-
 #define FLF(test, line)                                                 \
     "main.c:" #line ": (_narwhal_test_function_" #test "_output) "
 
@@ -545,6 +545,20 @@ TEST(hexdump_lengths_output)
         "    00000000: 01 02 03 04 05 06 07 08  09                      '.........'\n");
 }
 
+TEST(error_output)
+{
+    CAPTURE_OUTPUT(output) {
+        dbge(-EAGAIN);
+        dbge(0);
+        dbge(EAGAIN);
+    }
+
+    ASSERT_EQ(output,
+              FLF(error, 551) "-EAGAIN = -11 (Resource temporarily unavailable)\n"
+              FLF(error, 552) "0 = 0 (0x0)\n"
+              FLF(error, 553) "EAGAIN = 11 (0xb)\n");
+}
+
 /* To test that the expression is evaluated once. */
 static char char_once(char value)
 {
@@ -665,6 +679,7 @@ int main()
         double_hexdump_output,
         void_p_hexdump_output,
         hexdump_lengths_output,
+        error_output,
         char_logic,
         schar_logic,
         uchar_logic,
