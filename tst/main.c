@@ -646,6 +646,18 @@ TEST(bool_logic)
     ASSERT_EQ(dbg(true), true);
 }
 
+TEST(backtrace_output)
+{
+    CAPTURE_OUTPUT(output) {
+        dbgbt();
+    }
+
+    ASSERT_SUBSTRING(
+        output,
+        "main.c:652: (_narwhal_test_function_backtrace_output) "
+        "Traceback (most recent call last):");
+}
+
 int main()
 {
     return RUN_TESTS(
@@ -693,6 +705,7 @@ int main()
         ullong_logic,
         float_logic,
         double_logic,
-        bool_logic
+        bool_logic,
+        backtrace_output
     );
 }

@@ -1,3 +1,3 @@
 all:
-	gcc -I../include main.c -o main
+	gcc -I../include main.c -rdynamic -o main
 	./main

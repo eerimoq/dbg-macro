@@ -34,6 +34,9 @@
 #include <string.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <execinfo.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 /* Library version. */
 #define DBG_VERSION "0.10.0"
@@ -172,6 +175,8 @@
 #    define DBG_FORMAT_HEXDUMP_BEGIN                    \
     DBG_LOC "%s:%d: (%s) " DBG_EXPR "%s " DBG_RESET "(size: %u):\n" DBG_VALUE
 #    define DBG_FORMAT_HEXDUMP_END DBG_RESET
+#    define DBG_FORMAT_BACKTRACE                                        \
+    DBG_LOC "%s:%d: (%s) " DBG_RESET "Traceback (most recent call last):\n"
 #else
 #    define DBG_FORMAT(format)     "%s:%d: (%s) %s = " format "\n"
 #    define DBG_FORMAT_HEX(format, hexformat)           \
@@ -179,6 +184,8 @@
 #    define DBG_FORMAT_ARRAY_BEGIN "%s:%d: (%s) %s = ["
 #    define DBG_FORMAT_ARRAY_END   "] (length: %u)\n"
 #    define DBG_FORMAT_HEXDUMP_BEGIN "%s:%d: (%s) %s (size: %u):\n"
+#    define DBG_FORMAT_BACKTRACE                        \
+    "%s:%d: (%s) Traceback (most recent call last):\n"
 #endif
 
 /* Custom output stream. */
@@ -575,5 +582,39 @@ static inline int dbg_error(const char *file_p,
 
     return (error);
 }
+
+#define DBG_BACKTRACE_MAX 100
+#define DBG_TOKENPASTE(x, y) DBG_TOKENPASTE2(x, y)
+#define DBG_TOKENPASTE2(x, y) x ## y
+#define DBG_UNIQUE(x)  DBG_TOKENPASTE(x, DBG_TOKENPASTE(___, __LINE__))
+
+/**
+ * Print a backtrace. Pass -rdynamic to the linker for function names.
+ */
+#define dbgbt()                                                         \
+    do {                                                                \
+        int DBG_UNIQUE(i);                                              \
+        int DBG_UNIQUE(depth);                                          \
+        void *DBG_UNIQUE(buf)[DBG_BACKTRACE_MAX];                       \
+        char **DBG_UNIQUE(strings_pp);                                  \
+                                                                        \
+        DBG_UNIQUE(depth) = backtrace(&DBG_UNIQUE(buf)[0],              \
+                                      DBG_BACKTRACE_MAX);               \
+        DBG_UNIQUE(strings_pp) = backtrace_symbols(&DBG_UNIQUE(buf)[0], \
+                                                   DBG_UNIQUE(depth));  \
+        printf(DBG_FORMAT_BACKTRACE, __FILE__, __LINE__, __func__);     \
+                                                                        \
+        if (DBG_UNIQUE(strings_pp) == NULL) {                           \
+            printf("  No strings found!\n");                            \
+        } else {                                                        \
+            for (DBG_UNIQUE(i) = (DBG_UNIQUE(depth) - 1);               \
+                 DBG_UNIQUE(i) >= 0;                                    \
+                 DBG_UNIQUE(i)--) {                                     \
+                printf("  %s\n", DBG_UNIQUE(strings_pp)[DBG_UNIQUE(i)]); \
+            }                                                           \
+                                                                        \
+            free(DBG_UNIQUE(strings_pp));                               \
+        }                                                               \
+    } while (0)
 
 #endif

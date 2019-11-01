@@ -19,6 +19,8 @@ pointers.
 
 ``dbge(expr)`` for negative error codes.
 
+``dbgbt()`` for a backtrace.
+
 Just include `dbg.h`_ in your project to use it.
 
 Example
