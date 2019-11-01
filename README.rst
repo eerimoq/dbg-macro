@@ -56,6 +56,8 @@ See `examples`_ for the files used in this example.
        dbga(numbers, 2);  // main.c:22: numbers = [7, 13] (length: 2)
 
        dbg(factorial(4));
+       dbge(-EINVAL);
+       dbgbt();
 
        return (0);
    }

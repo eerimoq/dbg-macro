@@ -1,3 +1,4 @@
+#include <errno.h>
 #include "dbg.h"
 
 static int factorial(int n)
@@ -22,6 +23,8 @@ int main()
     dbga(numbers, 2);  // main.c:22: numbers = [7, 13] (length: 2)
 
     dbg(factorial(4));
+    dbge(-EINVAL);
+    dbgbt();
 
     return (0);
 }
