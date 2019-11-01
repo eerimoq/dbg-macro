@@ -4,7 +4,7 @@
 About
 =====
 
-Three macros that prints and returns the value of a given expression
+A few macros that prints and returns the value of a given expression
 for quick and dirty debugging, inspired by Rusts `dbg!(…) macro`_ and
 its `C++ variant`_.
 
