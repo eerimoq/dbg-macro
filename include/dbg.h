@@ -39,7 +39,7 @@
 #include <unistd.h>
 
 /* Library version. */
-#define DBG_VERSION "0.10.0"
+#define DBG_VERSION "0.11.0"
 
 #ifndef NDBG
 /**
