@@ -176,7 +176,7 @@
     DBG_LOC "%s:%d: (%s) " DBG_EXPR "%s " DBG_RESET "(size: %u):\n" DBG_VALUE
 #    define DBG_FORMAT_HEXDUMP_END DBG_RESET
 #    define DBG_FORMAT_BACKTRACE                                        \
-    DBG_LOC "%s:%d: (%s) " DBG_RESET "Traceback (most recent call last):\n"
+    DBG_LOC "%s:%d: (%s) " DBG_RESET "Backtrace (most recent call last):\n"
 #else
 #    define DBG_FORMAT(format)     "%s:%d: (%s) %s = " format "\n"
 #    define DBG_FORMAT_HEX(format, hexformat)           \
@@ -185,7 +185,7 @@
 #    define DBG_FORMAT_ARRAY_END   "] (length: %u)\n"
 #    define DBG_FORMAT_HEXDUMP_BEGIN "%s:%d: (%s) %s (size: %u):\n"
 #    define DBG_FORMAT_BACKTRACE                        \
-    "%s:%d: (%s) Traceback (most recent call last):\n"
+    "%s:%d: (%s) Backtrace (most recent call last):\n"
 #endif
 
 /* Custom output stream. */

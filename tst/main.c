@@ -655,7 +655,7 @@ TEST(backtrace_output)
     ASSERT_SUBSTRING(
         output,
         "main.c:652: (_narwhal_test_function_backtrace_output) "
-        "Traceback (most recent call last):");
+        "Backtrace (most recent call last):");
 }
 
 int main()
