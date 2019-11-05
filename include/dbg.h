@@ -606,6 +606,8 @@ static inline int dbg_error(const char *file_p,
 static inline int dbg_format_backtrace_addr2line(void **addresses_pp,
                                                   int depth)
 {
+#ifdef DBG_ADDR2LINE
+
     char exe[256];
     char command[384];
     ssize_t size;
@@ -644,6 +646,15 @@ static inline int dbg_format_backtrace_addr2line(void **addresses_pp,
     }
 
     return (0);
+
+#else
+
+    (void)addresses_pp;
+    (void)depth;
+
+    return (-1);
+
+#endif
 }
 
 static inline void dbg_format_backtrace_symbols(void **addresses_pp,
