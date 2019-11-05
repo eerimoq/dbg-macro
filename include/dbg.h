@@ -591,30 +591,91 @@ static inline int dbg_error(const char *file_p,
 /**
  * Print a backtrace. Pass -rdynamic to the linker for function names.
  */
-#define dbgbt()                                                         \
-    do {                                                                \
-        int DBG_UNIQUE(i);                                              \
-        int DBG_UNIQUE(depth);                                          \
-        void *DBG_UNIQUE(buf)[DBG_BACKTRACE_MAX];                       \
-        char **DBG_UNIQUE(strings_pp);                                  \
-                                                                        \
-        DBG_UNIQUE(depth) = backtrace(&DBG_UNIQUE(buf)[0],              \
-                                      DBG_BACKTRACE_MAX);               \
-        DBG_UNIQUE(strings_pp) = backtrace_symbols(&DBG_UNIQUE(buf)[0], \
-                                                   DBG_UNIQUE(depth));  \
-        printf(DBG_FORMAT_BACKTRACE, __FILE__, __LINE__, __func__);     \
-                                                                        \
-        if (DBG_UNIQUE(strings_pp) == NULL) {                           \
-            printf("  No strings found!\n");                            \
-        } else {                                                        \
-            for (DBG_UNIQUE(i) = (DBG_UNIQUE(depth) - 1);               \
-                 DBG_UNIQUE(i) >= 0;                                    \
-                 DBG_UNIQUE(i)--) {                                     \
-                printf("  %s\n", DBG_UNIQUE(strings_pp)[DBG_UNIQUE(i)]); \
-            }                                                           \
-                                                                        \
-            free(DBG_UNIQUE(strings_pp));                               \
-        }                                                               \
+#define dbgbt()                                                 \
+    do {                                                        \
+        void *DBG_UNIQUE(buf)[DBG_BACKTRACE_MAX];               \
+                                                                \
+        dbg_format_backtrace(__FILE__,                          \
+                             __LINE__,                          \
+                             __func__,                          \
+                             &DBG_UNIQUE(buf)[0],               \
+                             backtrace(&DBG_UNIQUE(buf)[0],     \
+                                       DBG_BACKTRACE_MAX));     \
     } while (0)
+
+static inline int dbg_format_backtrace_addr2line(void **addresses_pp,
+                                                  int depth)
+{
+    char exe[256];
+    char command[384];
+    ssize_t size;
+    int res;
+    int i;
+
+    size = readlink("/proc/self/exe", &exe[0], sizeof(exe) - 1);
+
+    if (size == -1) {
+        printf("No executable found!\n");
+
+        return (-1);
+    }
+
+    exe[size] = '\0';
+
+    for (i = (depth - 1); i >= 0; i--) {
+        snprintf(&command[0],
+                 sizeof(command),
+                 "addr2line -f -p -e %s %p",
+                 &exe[0],
+                 addresses_pp[i]);
+        command[sizeof(command) - 1] = '\0';
+
+        res = system(&command[0]);
+
+        if (res == -1) {
+            return (-1);
+        } else if (WIFEXITED(res)) {
+            if (WEXITSTATUS(res) != 0) {
+                return (-1);
+            }
+        } else {
+            return (-1);
+        }
+    }
+
+    return (0);
+}
+
+static inline void dbg_format_backtrace_symbols(void **addresses_pp,
+                                                int depth)
+{
+    char **strings_pp;
+    int i;
+
+    strings_pp = backtrace_symbols(addresses_pp, depth);
+
+    if (strings_pp == NULL) {
+        printf("  No strings found!\n");
+    } else {
+        for (i = (depth - 1); i >= 0; i--) {
+            printf("  %s\n", strings_pp[i]);
+        }
+
+        free(strings_pp);
+    }
+}
+
+static inline void dbg_format_backtrace(const char *file_p,
+                                        int line,
+                                        const char *func_p,
+                                        void **addresses_pp,
+                                        int depth)
+{
+    printf(DBG_FORMAT_BACKTRACE, file_p, line, func_p);
+
+    if (dbg_format_backtrace_addr2line(addresses_pp, depth) != 0) {
+        dbg_format_backtrace_symbols(addresses_pp, depth);
+    }
+}
 
 #endif
