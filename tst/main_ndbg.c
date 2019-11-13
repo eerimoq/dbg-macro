@@ -27,43 +27,34 @@
  */
 
 #include "dbg.h"
-#include "narwhal.h"
+#include "nala.h"
 
 TEST(dbg_output)
 {
-    CAPTURE_OUTPUT(output) {
+    CAPTURE_OUTPUT(stdoutput, stderrput) {
         printf("%d\n", dbg(1));
     }
 
-    ASSERT_EQ(output, "1\n");
+    ASSERT_EQ(stdoutput, "1\n");
 }
 
 TEST(dbgb_output)
 {
-    CAPTURE_OUTPUT(output) {
+    CAPTURE_OUTPUT(stdoutput, stderrput) {
         printf("%d\n", dbg(1));
     }
 
-    ASSERT_EQ(output, "1\n");
+    ASSERT_EQ(stdoutput, "1\n");
 }
 
 TEST(dbga_output)
 {
     int a[3] = { 1, 2, 3 };
 
-    CAPTURE_OUTPUT(output) {
+    CAPTURE_OUTPUT(stdoutput, stderrput) {
         printf("%d\n", dbga(a, 3)[1]);
         (void)dbga(a, 3);
     }
 
-    ASSERT_EQ(output, "2\n");
-}
-
-int main()
-{
-    return RUN_TESTS(
-        dbg_output,
-        dbgb_output,
-        dbga_output
-    );
+    ASSERT_EQ(stdoutput, "2\n");
 }

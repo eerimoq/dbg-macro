@@ -28,10 +28,10 @@
 
 #include <stdio.h>
 #include "dbg.h"
-#include "narwhal.h"
+#include "nala.h"
 
-#define FLF(test, line)                                                 \
-    "\x1b[02mmain_dbg_ostream.c:" #line ": (_narwhal_test_function_" #test "_output) " \
+#define FLF(test, line)                                         \
+    "\x1b[02mmain_dbg_ostream.c:" #line ": (" #test "_output) " \
     "\x1b[0m\x1b[36m\x1b[1m"
 
 FILE *my_ostream_p;
@@ -50,11 +50,4 @@ TEST(dbg_output)
     ASSERT_LT(size, 1024);
     output[size] = '\0';
     ASSERT_EQ((char *)output, FLF(dbg, 46) "1\x1b[0m = \x1b[01m1 (0x1)\n\x1b[0m");
-}
-
-int main()
-{
-    return (RUN_TESTS(
-                dbg_output
-            ));
 }
