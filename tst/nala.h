@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define VERSION "0.11.0"
+#define VERSION "0.18.0"
 
 #define TEST(name)                                      \
     void name(void);                                    \
@@ -65,18 +65,24 @@
     default: "%p")
 
 #define NALA_BINARY_ASSERTION(left, right, check, format, formatter)    \
-    if (!check((left), (right))) {                                      \
-        char _nala_assert_format[512];                                  \
+    do {                                                                \
+        __typeof__(left) _nala_assert_left = (left);                    \
+        __typeof__(right) _nala_assert_right = (right);                 \
                                                                         \
-        snprintf(&_nala_assert_format[0],                               \
-                 sizeof(_nala_assert_format),                           \
-                 format,                                                \
-                 NALA_PRINT_FORMAT(left),                               \
-                 NALA_PRINT_FORMAT(right));                             \
-        NALA_TEST_FAILURE(formatter(_nala_assert_format,                \
-                                    (left),                             \
-                                    (right)));                          \
-    }                                                                   \
+        if (!check(_nala_assert_left, _nala_assert_right)) {            \
+            nala_reset_all_mocks();                                     \
+            char _nala_assert_format[512];                              \
+                                                                        \
+            snprintf(&_nala_assert_format[0],                           \
+                     sizeof(_nala_assert_format),                       \
+                     format,                                            \
+                     NALA_PRINT_FORMAT(_nala_assert_left),              \
+                     NALA_PRINT_FORMAT(_nala_assert_right));            \
+            NALA_TEST_FAILURE(formatter(_nala_assert_format,            \
+                                        _nala_assert_left,              \
+                                        _nala_assert_right));           \
+        }                                                               \
+    } while (0);
 
 #define NALA_CHECK_EQ(left, right)                      \
     _Generic(                                           \
@@ -224,6 +230,7 @@
 #define ASSERT_MEMORY(left, right, size)                        \
     do {                                                        \
         if (memcmp((left), (right), (size)) != 0) {             \
+            nala_reset_all_mocks();                             \
             NALA_TEST_FAILURE(nala_format_memory((left),        \
                                                  (right),       \
                                                  (size)));      \
@@ -232,10 +239,15 @@
 
 #define ASSERT(cond)                            \
     if (!(cond)) {                              \
-        NALA_TEST_FAILURE(strdup("Assert.\n")); \
+        nala_reset_all_mocks();                 \
+        NALA_TEST_FAILURE(nala_format("Assert.\n")); \
     }
 
-#define FAIL() NALA_TEST_FAILURE(strdup("Fail.\n"))
+#define FAIL()                                  \
+    do {                                        \
+        nala_reset_all_mocks();                 \
+        NALA_TEST_FAILURE(nala_format("Fail.\n"));   \
+    } while (0);
 
 #define CAPTURE_OUTPUT(stdout_name, stderr_name)                        \
     int stdout_name ## i;                                               \
@@ -280,5 +292,7 @@ __attribute__ ((noreturn)) void nala_test_failure(const char *file_p,
 void nala_register_test(struct nala_test_t *test_p);
 
 int nala_run_tests(void);
+
+void nala_reset_all_mocks(void);
 
 #endif

@@ -296,6 +296,20 @@ __attribute__ ((weak)) void nala_assert_all_mocks_completed(void)
 {
 }
 
+__attribute__ ((weak)) void nala_reset_all_mocks(void)
+{
+}
+
+static void color_start(FILE *file_p, const char *color_p)
+{
+    fprintf(file_p, "%s%s%s", ANSI_RESET, ANSI_BOLD, color_p);
+}
+
+static void color_reset(FILE *file_p)
+{
+    fprintf(file_p, "%s", ANSI_RESET);
+}
+
 static void capture_output_init(struct capture_output_t *self_p,
                                 FILE *file_p)
 {
@@ -528,6 +542,7 @@ static void test_entry(void *arg_p)
         }
     }
 
+    nala_reset_all_mocks();
     capture_output_destroy(&capture_stdout);
     capture_output_destroy(&capture_stderr);
 
@@ -589,15 +604,22 @@ bool nala_check_string_equal(const char *actual_p, const char *expected_p)
 
 const char *nala_format(const char *format_p, ...)
 {
-    char buf[1024];
     va_list vl;
+    size_t size;
+    char *buf_p;
+    FILE *file_p;
 
+    nala_reset_all_mocks();
+    file_p = open_memstream(&buf_p, &size);
+    color_start(file_p, ANSI_COLOR_RED);
     va_start(vl, format_p);
-    vsnprintf(&buf[0], sizeof(buf), format_p, vl);
+    vfprintf(file_p, format_p, vl);
     va_end(vl);
-    buf[sizeof(buf) - 1] = '\0';
+    color_reset(file_p);
+    fputc('\0', file_p);
+    fclose(file_p);
 
-    return strdup(&buf[0]);
+    return (buf_p);
 }
 
 static const char *display_inline_diff(FILE *file_p,
@@ -793,8 +815,10 @@ const char *nala_format_string(const char *format_p, ...)
     va_end(vl);
 
     file_p = open_memstream(&buf_p, &size);
+    color_start(file_p, ANSI_COLOR_RED);
     fprintf(file_p, format_p, left_p, right_p);
-    fprintf(file_p, " See diff for details.\n");
+    fprintf(file_p, "            See diff for details.\n");
+    color_reset(file_p);
     print_string_diff(file_p, left_p, right_p);
     fputc('\0', file_p);
     fclose(file_p);
@@ -813,7 +837,7 @@ const char *nala_format_memory(const void *left_p,
     char *right_hexdump_p;
 
     file_p = open_memstream(&buf_p, &file_size);
-    fprintf(file_p, "Memory mismatch. See diff for details.\n");
+    fprintf(file_p, COLOR_BOLD(RED, "Memory mismatch. See diff for details.\n"));
     left_hexdump_p = nala_hexdump(left_p, size, 16);
     right_hexdump_p = nala_hexdump(right_p, size, 16);
     print_string_diff(file_p, right_hexdump_p, left_hexdump_p);
