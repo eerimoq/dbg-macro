@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define VERSION "0.18.0"
+#define VERSION "0.29.0"
 
 #define TEST(name)                                      \
     void name(void);                                    \
@@ -144,87 +144,87 @@
 #define NALA_CHECK_NOT_SUBSTRING(left, right)   \
     (!nala_check_substring(left, right))
 
-#define NALA_FORMAT_EQ(format, left, right)                     \
-    _Generic(                                                   \
-        (left),                                                 \
-        char *: _Generic(                                       \
-            (right),                                            \
-            char *: nala_format_string(                         \
-                format,                                         \
-                (char *)(uintptr_t)(left),                      \
-                (char *)(uintptr_t)(right)),                    \
-            const char *: nala_format_string(                   \
-                format,                                         \
-                (char *)(uintptr_t)(left),                      \
-                (char *)(uintptr_t)(right)),                    \
-            default: nala_format(format, (left), (right))),     \
-        const char *: _Generic(                                 \
-            (right),                                            \
-            char *: nala_format_string(                         \
-                format,                                         \
-                (char *)(uintptr_t)(left),                      \
-                (char *)(uintptr_t)(right)),                    \
-            const char *: nala_format_string(                   \
-                format,                                         \
-                (char *)(uintptr_t)(left),                      \
-                (char *)(uintptr_t)(right)),                    \
-            default: nala_format(format, (left), (right))),     \
-        default: nala_format(format, (left), (right)))
+#define NALA_FORMAT_EQ(format, left, right)             \
+    _Generic(                                           \
+        (left),                                         \
+        char *: _Generic(                               \
+            (right),                                    \
+            char *: nala_format_string(                 \
+                format,                                 \
+                (char *)(uintptr_t)(left),              \
+                (char *)(uintptr_t)(right)),            \
+            const char *: nala_format_string(           \
+                format,                                 \
+                (char *)(uintptr_t)(left),              \
+                (char *)(uintptr_t)(right)),            \
+        default: nala_format(format, (left), (right))), \
+        const char *: _Generic(                         \
+            (right),                                    \
+            char *: nala_format_string(                 \
+                format,                                 \
+                (char *)(uintptr_t)(left),              \
+                (char *)(uintptr_t)(right)),            \
+            const char *: nala_format_string(           \
+                format,                                 \
+                (char *)(uintptr_t)(left),              \
+                (char *)(uintptr_t)(right)),            \
+        default: nala_format(format, (left), (right))), \
+    default: nala_format(format, (left), (right)))
 
-#define ASSERT_EQ(left, right)                                          \
-    NALA_BINARY_ASSERTION(left,                                         \
-                          right,                                        \
-                          NALA_CHECK_EQ,                                \
-                          "First argument %s is not equal to %s.\n",    \
+#define ASSERT_EQ(left, right)                          \
+    NALA_BINARY_ASSERTION(left,                         \
+                          right,                        \
+                          NALA_CHECK_EQ,                \
+                          "%s is not equal to %s.\n",   \
                           NALA_FORMAT_EQ)
 
-#define ASSERT_NE(left, right)                                          \
-    NALA_BINARY_ASSERTION(left,                                         \
-                          right,                                        \
-                          NALA_CHECK_NE,                                \
-                          "First argument %s is not different from %s.\n", \
+#define ASSERT_NE(left, right)                                  \
+    NALA_BINARY_ASSERTION(left,                                 \
+                          right,                                \
+                          NALA_CHECK_NE,                        \
+                          "%s is not different from %s.\n",     \
                           nala_format)
 
-#define ASSERT_LT(left, right)                                          \
-    NALA_BINARY_ASSERTION(left,                                         \
-                          right,                                        \
-                          NALA_CHECK_LT,                                \
-                          "First argument %s is not less than %s.\n",   \
+#define ASSERT_LT(left, right)                          \
+    NALA_BINARY_ASSERTION(left,                         \
+                          right,                        \
+                          NALA_CHECK_LT,                \
+                          "%s is not less than %s.\n",  \
                           nala_format)
 
 #define ASSERT_LE(left, right)                                          \
     NALA_BINARY_ASSERTION(left,                                         \
                           right,                                        \
                           NALA_CHECK_LE,                                \
-                          "First argument %s is not less than or equal to %s.\n", \
+                          "%s is not less than or equal to %s.\n",      \
                           nala_format)
 
-#define ASSERT_GT(left, right)                                          \
-    NALA_BINARY_ASSERTION(left,                                         \
-                          right,                                        \
-                          NALA_CHECK_GT,                                \
-                          "First argument %s is not greater than %s.\n", \
+#define ASSERT_GT(left, right)                                  \
+    NALA_BINARY_ASSERTION(left,                                 \
+                          right,                                \
+                          NALA_CHECK_GT,                        \
+                          "%s is not greater than %s.\n",       \
                           nala_format)
 
 #define ASSERT_GE(left, right)                                          \
     NALA_BINARY_ASSERTION(left,                                         \
                           right,                                        \
                           NALA_CHECK_GE,                                \
-                          "First argument %s is not greater or equal to %s.\n", \
+                          "%s is not greater or equal to %s.\n",        \
                           nala_format)
 
-#define ASSERT_SUBSTRING(string, substring)                             \
-    NALA_BINARY_ASSERTION(string,                                       \
-                          substring,                                    \
-                          NALA_CHECK_SUBSTRING,                         \
-                          "First argument %s doesn't contain %s.\n",    \
+#define ASSERT_SUBSTRING(string, substring)             \
+    NALA_BINARY_ASSERTION(string,                       \
+                          substring,                    \
+                          NALA_CHECK_SUBSTRING,         \
+                          "%s doesn't contain %s.\n",   \
                           nala_format)
 
-#define ASSERT_NOT_SUBSTRING(string, substring)                 \
-    NALA_BINARY_ASSERTION(string,                               \
-                          substring,                            \
-                          NALA_CHECK_NOT_SUBSTRING,             \
-                          "First argument %s contains %s.\n",   \
+#define ASSERT_NOT_SUBSTRING(string, substring)         \
+    NALA_BINARY_ASSERTION(string,                       \
+                          substring,                    \
+                          NALA_CHECK_NOT_SUBSTRING,     \
+                          "%s contains %s.\n",          \
                           nala_format)
 
 #define ASSERT_MEMORY(left, right, size)                        \

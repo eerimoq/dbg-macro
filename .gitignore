@@ -58,3 +58,4 @@ main_dbg_ostream
 test_dbg_ostream.txt
 *.gcda
 *.gcno
+report.json
