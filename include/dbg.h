@@ -105,7 +105,7 @@
  * To force boolean true/false output. Returns the result of given
  * expression.
  */
-#    define dbgb(expr)                                    \
+#    define dbgb(expr)                                  \
     dbg_bool(__FILE__, __LINE__, __func__, #expr, expr)
 
 /**
@@ -147,7 +147,7 @@
 /**
  * For negative error codes. Returns the result of given expression.
  */
-#    define dbge(expr)                                  \
+#    define dbge(expr)                                          \
     dbg_error(__FILE__, __LINE__, __func__, #expr, expr)
 #else
 #    define dbg(expr) (expr)
@@ -172,7 +172,7 @@
 #    define DBG_FORMAT_ARRAY_BEGIN                                      \
     DBG_LOC "%s:%d: (%s) " DBG_EXPR "%s" DBG_RESET " = " DBG_VALUE "["
 #    define DBG_FORMAT_ARRAY_END   "] (length: %u)\n" DBG_RESET
-#    define DBG_FORMAT_HEXDUMP_BEGIN                    \
+#    define DBG_FORMAT_HEXDUMP_BEGIN                                    \
     DBG_LOC "%s:%d: (%s) " DBG_EXPR "%s " DBG_RESET "(size: %u):\n" DBG_VALUE
 #    define DBG_FORMAT_HEXDUMP_END DBG_RESET
 #    define DBG_FORMAT_BACKTRACE                                        \
@@ -384,10 +384,10 @@ static inline const char *dbg_format_bool(bool value)
 }
 
 static inline bool dbg_bool(const char *file_p,
-              int line,
-              const char *func_p,
-              const char *expr_p,
-              bool value)
+                            int line,
+                            const char *func_p,
+                            const char *expr_p,
+                            bool value)
 {
     fprintf(DBG_OSTREAM,
             DBG_FORMAT("%s"),
@@ -401,11 +401,11 @@ static inline bool dbg_bool(const char *file_p,
 }
 
 static inline const bool *dbg_const_bool_p(const char *file_p,
-                             int line,
-                             const char *func_p,
-                             const char *expr_p,
-                             const bool *value_p,
-                             int length)
+                                           int line,
+                                           const char *func_p,
+                                           const char *expr_p,
+                                           const bool *value_p,
+                                           int length)
 {
     int i;
     char *delim_p;
@@ -604,7 +604,7 @@ static inline int dbg_error(const char *file_p,
     } while (0)
 
 static inline int dbg_format_backtrace_addr2line(void **addresses_pp,
-                                                  int depth)
+                                                 int depth)
 {
 #ifdef DBG_ADDR2LINE
 
@@ -629,7 +629,7 @@ static inline int dbg_format_backtrace_addr2line(void **addresses_pp,
                  sizeof(command),
                  "addr2line -f -p -e %s %p",
                  &exe[0],
-                 addresses_pp[i]);
+                 ((void *)(((uintptr_t)(addresses_pp[i])) - 1)));
         command[sizeof(command) - 1] = '\0';
 
         res = system(&command[0]);
