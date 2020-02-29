@@ -1,3 +1,4 @@
+#include <libgen.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include <unistd.h>
@@ -7,6 +8,7 @@
 #include <ctype.h>
 #include <errno.h>
 #include <sys/time.h>
+#include <getopt.h>
 // #include "subprocess.h"
 /*
  * The MIT License (MIT)
@@ -36,10 +38,13 @@
  * This file is part of the subprocess project.
  */
 
+#ifndef NALA_SUBPROCESS_H
+#define NALA_SUBPROCESS_H
+
 #include <string.h>
 #include <stdbool.h>
 
-#define NALA_SUBPROCESS_VERSION "0.3.0"
+#define NALA_SUBPROCESS_VERSION "0.5.0"
 
 typedef void (*nala_subprocess_entry_t)(void *arg_p);
 
@@ -104,6 +109,8 @@ void nala_subprocess_result_print(struct nala_subprocess_result_t *self_p);
  */
 void nala_subprocess_result_free(struct nala_subprocess_result_t *self_p);
 
+#endif
+
 // #include "traceback.h"
 /*
  * The MIT License (MIT)
@@ -133,12 +140,35 @@ void nala_subprocess_result_free(struct nala_subprocess_result_t *self_p);
  * This file is part of the traceback project.
  */
 
-#define NALA_TRACEBACK_VERSION "0.2.0"
+#include <stdbool.h>
+
+#define NALA_TRACEBACK_VERSION "0.7.0"
+
+typedef bool (*nala_traceback_skip_filter_t)(void *arg_p, const char *line_p);
+
+/**
+ * Format given traceback. buffer_pp and depth are compatible with
+ * backtrace() output.
+ */
+char *nala_traceback_format(void **buffer_pp,
+                       int depth,
+                       const char *prefix_p,
+                       nala_traceback_skip_filter_t skip_filter,
+                       void *arg_p);
+
+/**
+ * Create a traceback string.
+ */
+char *nala_traceback_string(const char *prefix_pp,
+                       nala_traceback_skip_filter_t skip_filter,
+                       void *arg_p);
 
 /**
  * Print a traceback.
  */
-void nala_traceback_print(const char *prefix_p);
+void nala_traceback_print(const char *prefix_pp,
+                     nala_traceback_skip_filter_t skip_filter,
+                     void *arg_p);
 
 #include "nala.h"
 // #include "diff/diff.h"
@@ -146,18 +176,6 @@ void nala_traceback_print(const char *prefix_p);
 #define NALA_DIFF_H
 
 #include <stdlib.h>
-
-// #include "types.h"
-#ifndef NALA_DIFF_TYPES_H
-#define NALA_DIFF_TYPES_H
-
-typedef struct NalaDiffMatrix NalaDiffMatrix;
-typedef enum NalaDiffChunkType NalaDiffChunkType;
-typedef struct NalaDiff NalaDiff;
-typedef struct NalaDiffChunk NalaDiffChunk;
-
-#endif
-
 
 struct NalaDiffMatrix
 {
@@ -177,44 +195,48 @@ enum NalaDiffChunkType
 struct NalaDiff
 {
     size_t size;
-    NalaDiffChunk *chunks;
+    struct NalaDiffChunk *chunks;
 };
 
 struct NalaDiffChunk
 {
-    NalaDiffChunkType type;
+    enum NalaDiffChunkType type;
     size_t original_start;
     size_t original_end;
     size_t modified_start;
     size_t modified_end;
 };
 
-NalaDiffMatrix *nala_new_diff_matrix(size_t rows, size_t columns);
-NalaDiffMatrix *nala_new_diff_matrix_from_lengths(size_t original_length,
-                                                        size_t modified_lengths);
-void nala_diff_matrix_fill_from_strings(NalaDiffMatrix *diff_matrix,
-                                           const char *original,
-                                           const char *modified);
-void nala_diff_matrix_fill_from_lines(NalaDiffMatrix *diff_matrix,
-                                         const char *original,
-                                         const char *modified);
-NalaDiff nala_diff_matrix_get_diff(const NalaDiffMatrix *diff_matrix);
+struct NalaDiffMatrix *nala_new_diff_matrix(size_t rows, size_t columns);
+struct NalaDiffMatrix *nala_new_diff_matrix_from_lengths(size_t original_length,
+                                                         size_t modified_lengths);
+void nala_diff_matrix_fill_from_strings(struct NalaDiffMatrix *diff_matrix,
+                                        const char *original,
+                                        const char *modified);
+void nala_diff_matrix_fill_from_lines(struct NalaDiffMatrix *diff_matrix,
+                                      const char *original,
+                                      const char *modified);
+struct NalaDiff nala_diff_matrix_get_diff(const struct NalaDiffMatrix *diff_matrix);
 
-size_t nala_diff_matrix_index(const NalaDiffMatrix *diff_matrix, size_t row, size_t column);
-int nala_diff_matrix_get(const NalaDiffMatrix *diff_matrix, size_t row, size_t column);
-void nala_diff_matrix_set(const NalaDiffMatrix *diff_matrix,
-                             size_t row,
-                             size_t column,
-                             int value);
+size_t nala_diff_matrix_index(const struct NalaDiffMatrix *diff_matrix,
+                              size_t row,
+                              size_t column);
+int nala_diff_matrix_get(const struct NalaDiffMatrix *diff_matrix,
+                         size_t row,
+                         size_t column);
+void nala_diff_matrix_set(const struct NalaDiffMatrix *diff_matrix,
+                          size_t row,
+                          size_t column,
+                          int value);
 
-NalaDiff nala_diff_strings_lengths(const char *original,
-                                         size_t original_length,
-                                         const char *modified,
-                                         size_t modified_length);
-NalaDiff nala_diff_strings(const char *original, const char *modified);
-NalaDiff nala_diff_lines(const char *original, const char *modified);
+struct NalaDiff nala_diff_strings_lengths(const char *original,
+                                          size_t original_length,
+                                          const char *modified,
+                                          size_t modified_length);
+struct NalaDiff nala_diff_strings(const char *original, const char *modified);
+struct NalaDiff nala_diff_lines(const char *original, const char *modified);
 
-void nala_free_diff_matrix(NalaDiffMatrix *diff_matrix);
+void nala_free_diff_matrix(struct NalaDiffMatrix *diff_matrix);
 
 #endif
 
@@ -327,6 +349,7 @@ struct capture_output_t {
     int original_fd;
     FILE *temporary_file_p;
     FILE *original_file_p;
+    FILE *stdout_p;
 };
 
 static struct nala_test_t *current_test_p = NULL;
@@ -339,12 +362,6 @@ static struct tests_t tests = {
 static struct capture_output_t capture_stdout;
 static struct capture_output_t capture_stderr;
 
-int setup(void);
-
-int teardown(void);
-
-void nala_assert_all_mocks_completed(void);
-
 __attribute__ ((weak)) void nala_assert_all_mocks_completed(void)
 {
 }
@@ -352,6 +369,18 @@ __attribute__ ((weak)) void nala_assert_all_mocks_completed(void)
 __attribute__ ((weak)) void nala_reset_all_mocks(void)
 {
 }
+
+__attribute__ ((weak)) void nala_suspend_all_mocks(void)
+{
+}
+
+__attribute__ ((weak)) void nala_resume_all_mocks(void)
+{
+}
+
+__attribute__ ((weak)) int nala_print_call_mask = 0;
+
+static bool continue_on_failure = false;
 
 static const char *get_node(void)
 {
@@ -386,12 +415,50 @@ static void color_reset(FILE *file_p)
     fprintf(file_p, "%s", ANSI_RESET);
 }
 
+static char *format_suite_prefix(struct nala_test_t *test_p,
+                                 char *buf_p,
+                                 size_t size)
+{
+    size_t length;
+
+    strncpy(buf_p, test_p->file_p, size);
+    buf_p = basename(buf_p);
+    length = strlen(buf_p);
+
+    if (length < 2) {
+        return ("");
+    }
+
+    buf_p[length - 2] = '\0';
+
+    if (strcmp(buf_p, "main") == 0) {
+        return ("");
+    }
+
+    strcat(buf_p, "::");
+
+    return (buf_p);
+}
+
+static char *full_test_name(struct nala_test_t *test_p)
+{
+    static char buf[512];
+    char suite[512];
+    char *suite_p;
+
+    suite_p = format_suite_prefix(test_p, &suite[0], sizeof(suite));
+    snprintf(&buf[0], sizeof(buf), "%s%s", suite_p, test_p->name_p);
+
+    return (&buf[0]);
+}
+
 static void capture_output_init(struct capture_output_t *self_p,
                                 FILE *file_p)
 {
     self_p->output_pp = NULL;
     self_p->length = 0;
     self_p->original_file_p = file_p;
+    self_p->stdout_p = fdopen(dup(fileno(file_p)), "w");
 }
 
 static void capture_output_destroy(struct capture_output_t *self_p)
@@ -403,6 +470,9 @@ static void capture_output_destroy(struct capture_output_t *self_p)
 
         self_p->output_pp = NULL;
     }
+
+    fflush(self_p->stdout_p);
+    fclose(self_p->stdout_p);
 }
 
 static void capture_output_redirect(struct capture_output_t *self_p)
@@ -474,6 +544,15 @@ static void capture_output_stop(struct capture_output_t *self_p)
     printf("%s", *self_p->output_pp);
 }
 
+FILE *nala_get_stdout(void)
+{
+    if (capture_stdout.running) {
+        return (capture_stdout.stdout_p);
+    } else {
+        return (stdout);
+    }
+}
+
 static float timeval_to_ms(struct timeval *timeval_p)
 {
     float res;
@@ -485,80 +564,54 @@ static float timeval_to_ms(struct timeval *timeval_p)
     return (res);
 }
 
-static void print_signal_failure(struct nala_test_t *test_p)
+static void print_test_failure_report_begin()
 {
+    printf("-------------------------- "
+           "TEST FAILURE REPORT BEGIN "
+           "--------------------------\n");
     printf("\n");
-    printf("%s failed:\n\n", test_p->name_p);
-    printf("  Location: " COLOR_BOLD(GREEN, "unknown\n"));
-    printf("  Error:    " COLOR_BOLD(RED, "Terminated by signal %d.\n"),
-           test_p->signal_number);
 }
 
-static void print_location_context(const char *filename_p, size_t line_number)
+static void print_test_failure_report_end()
 {
-    FILE *file_p;
-    char line_prefix[64];
-    char line[256];
-    size_t first_line;
-    size_t i;
-
-    printf("  Location context:\n\n");
-
-    file_p = fopen(filename_p, "r");
-
-    if (file_p == NULL) {
-        return;
-    }
-
-    if (line_number < 2) {
-        first_line = 1;
-    } else {
-        first_line = (line_number - 2);
-    }
-
-    for (i = 1; i < line_number + 3; i++) {
-        if (fgets(&line[0], sizeof(line), file_p) == NULL) {
-            goto out1;
-        }
-
-        if (i < first_line) {
-            continue;
-        }
-
-        if (i == line_number) {
-            snprintf(line_prefix,
-                     sizeof(line_prefix),
-                     "> " COLOR_BOLD(MAGENTA, "%ld"),
-                     i);
-            printf("  %23s", line_prefix);
-            printf(" |  " COLOR_BOLD(CYAN, "%s"), line);
-        } else {
-            printf("  " COLOR(MAGENTA, "%6zu"), i);
-            printf(" |  %s", line);
-        }
-    }
-
- out1:
-
     printf("\n");
-    fclose(file_p);
+    printf("--------------------------- "
+           "TEST FAILURE REPORT END "
+           "---------------------------\n");
+}
+
+static void print_signal_failure(struct nala_test_t *test_p)
+{
+    print_test_failure_report_begin();
+    printf("  Test:  " COLOR_BOLD(CYAN, "%s\n"), full_test_name(current_test_p));
+    printf("  Error: " COLOR_BOLD(RED, "Terminated by signal %d.\n"),
+           test_p->signal_number);
+    print_test_failure_report_end();
 }
 
 static const char *test_result(struct nala_test_t *test_p, bool color)
 {
     const char *result_p;
 
-    if (test_p->exit_code == 0) {
-        if (color) {
-            result_p = COLOR_BOLD(GREEN, "PASSED");
+    if (test_p->executed) {
+        if (test_p->exit_code == 0) {
+            if (color) {
+                result_p = COLOR_BOLD(GREEN, "PASSED");
+            } else {
+                result_p = "PASSED";
+            }
         } else {
-            result_p = "PASSED";
+            if (color) {
+                result_p = COLOR_BOLD(RED, "FAILED");
+            } else {
+                result_p = "FAILED";
+            }
         }
     } else {
         if (color) {
-            result_p = COLOR_BOLD(RED, "FAILED");
+            result_p = COLOR_BOLD(YELLOW, "SKIPPED");
         } else {
-            result_p = "FAILED";
+            result_p = "SKIPPED";
         }
     }
 
@@ -569,7 +622,7 @@ static void print_test_result(struct nala_test_t *test_p)
 {
     printf("%s %s (" COLOR_BOLD(YELLOW, "%s") ")",
            test_result(test_p, true),
-           test_p->name_p,
+           full_test_name(test_p),
            format_timespan(test_p->elapsed_time_ms));
 
     if (test_p->signal_number != -1) {
@@ -586,18 +639,24 @@ static void print_summary(struct nala_test_t *test_p,
     int total;
     int passed;
     int failed;
+    int skipped;
 
     total = 0;
     passed = 0;
     failed = 0;
+    skipped = 0;
 
     while (test_p != NULL) {
         total++;
 
-        if (test_p->exit_code == 0) {
-            passed++;
+        if (test_p->executed) {
+            if (test_p->exit_code == 0) {
+                passed++;
+            } else {
+                failed++;
+            }
         } else {
-            failed++;
+            skipped++;
         }
 
         test_p = test_p->next_p;
@@ -611,6 +670,10 @@ static void print_summary(struct nala_test_t *test_p,
 
     if (passed > 0) {
         printf(COLOR_BOLD(GREEN, "%d passed") ", ", passed);
+    }
+
+    if (skipped > 0) {
+        printf(COLOR_BOLD(YELLOW, "%d skipped") ", ", skipped);
     }
 
     printf("%d total\n", total);
@@ -646,7 +709,7 @@ static void write_report_json(struct nala_test_t *test_p)
                 "            \"result\": \"%s\",\n"
                 "            \"execution_time\": \"%s\"\n"
                 "        }%s\n",
-                test_p->name_p,
+                full_test_name(test_p),
                 test_result(test_p, false),
                 format_timespan(test_p->elapsed_time_ms),
                 (test_p->next_p != NULL ? "," : ""));
@@ -662,29 +725,18 @@ static void write_report_json(struct nala_test_t *test_p)
 static void test_entry(void *arg_p)
 {
     struct nala_test_t *test_p;
-    int res;
 
     test_p = (struct nala_test_t *)arg_p;
-
     capture_output_init(&capture_stdout, stdout);
     capture_output_init(&capture_stderr, stderr);
-
-    res = setup();
-
-    if (res == 0) {
-        test_p->func();
-        res = teardown();
-
-        if (res == 0) {
-            nala_assert_all_mocks_completed();
-        }
-    }
-
     nala_reset_all_mocks();
+    test_p->func();
+    nala_assert_all_mocks_completed();
+    nala_reset_all_mocks();
+    nala_suspend_all_mocks();
     capture_output_destroy(&capture_stdout);
     capture_output_destroy(&capture_stderr);
-
-    exit(res == 0 ? 0 : 1);
+    exit(0);
 }
 
 static int run_tests(struct nala_test_t *tests_p)
@@ -699,6 +751,13 @@ static int run_tests(struct nala_test_t *tests_p)
     struct nala_subprocess_result_t *result_p;
 
     test_p = tests_p;
+
+    while (test_p != NULL) {
+        test_p->executed = false;
+        test_p = test_p->next_p;
+    }
+
+    test_p = tests_p;
     gettimeofday(&start_time, NULL);
     res = 0;
 
@@ -709,6 +768,7 @@ static int run_tests(struct nala_test_t *tests_p)
 
         result_p = nala_subprocess_call(test_entry, test_p);
 
+        test_p->executed = true;
         test_p->exit_code = result_p->exit_code;
         test_p->signal_number = result_p->signal_number;
         nala_subprocess_result_free(result_p);
@@ -726,6 +786,11 @@ static int run_tests(struct nala_test_t *tests_p)
         }
 
         print_test_result(test_p);
+
+        if ((res != 0) && !continue_on_failure) {
+            break;
+        }
+
         test_p = test_p->next_p;
     }
 
@@ -739,7 +804,13 @@ static int run_tests(struct nala_test_t *tests_p)
 
 bool nala_check_string_equal(const char *actual_p, const char *expected_p)
 {
-    return (strcmp(actual_p, expected_p) == 0);
+    if (actual_p == expected_p) {
+        return (true);
+    }
+
+    return ((actual_p != NULL)
+            && (expected_p != NULL)
+            && (strcmp(actual_p, expected_p) == 0));
 }
 
 const char *nala_format(const char *format_p, ...)
@@ -749,7 +820,7 @@ const char *nala_format(const char *format_p, ...)
     char *buf_p;
     FILE *file_p;
 
-    nala_reset_all_mocks();
+    nala_suspend_all_mocks();
     file_p = open_memstream(&buf_p, &size);
     color_start(file_p, ANSI_COLOR_RED);
     va_start(vl, format_p);
@@ -758,18 +829,19 @@ const char *nala_format(const char *format_p, ...)
     color_reset(file_p);
     fputc('\0', file_p);
     fclose(file_p);
+    nala_resume_all_mocks();
 
     return (buf_p);
 }
 
 static const char *display_inline_diff(FILE *file_p,
-                                       const NalaDiff *inline_diff,
+                                       const struct NalaDiff *inline_diff,
                                        size_t lines,
                                        const char *string,
                                        size_t *line_number,
                                        bool use_original)
 {
-    NalaDiffChunk *inline_chunk = &inline_diff->chunks[0];
+    struct NalaDiffChunk *inline_chunk = &inline_diff->chunks[0];
     size_t line_index = 0;
     size_t index = 0;
 
@@ -843,14 +915,15 @@ static void print_string_diff(FILE *file_p,
                               const char *original,
                               const char *modified)
 {
+    nala_suspend_all_mocks();
     fprintf(file_p, "  Diff:\n\n");
 
-    NalaDiff diff = nala_diff_lines(original, modified);
+    struct NalaDiff diff = nala_diff_lines(original, modified);
 
     size_t line_number = 1;
 
     for (size_t chunk_index = 0; chunk_index < diff.size; chunk_index++) {
-        NalaDiffChunk *chunk = &diff.chunks[chunk_index];
+        struct NalaDiffChunk *chunk = &diff.chunks[chunk_index];
 
         size_t original_lines = chunk->original_end - chunk->original_start;
         size_t modified_lines = chunk->modified_end - chunk->modified_start;
@@ -879,7 +952,7 @@ static void print_string_diff(FILE *file_p,
             size_t original_length = (size_t)(original_end - original);
             size_t modified_length = (size_t)(modified_end - modified);
 
-            NalaDiff inline_diff =
+            struct NalaDiff inline_diff =
                 nala_diff_strings_lengths(original,
                                           original_length,
                                           modified,
@@ -939,6 +1012,7 @@ static void print_string_diff(FILE *file_p,
 
     free(diff.chunks);
     fprintf(file_p, "\n");
+    nala_resume_all_mocks();
 }
 
 const char *nala_format_string(const char *format_p, ...)
@@ -950,6 +1024,8 @@ const char *nala_format_string(const char *format_p, ...)
     const char *left_p;
     const char *right_p;
 
+    nala_suspend_all_mocks();
+
     va_start(vl, format_p);
     left_p = va_arg(vl, const char *);
     right_p = va_arg(vl, const char *);
@@ -958,16 +1034,28 @@ const char *nala_format_string(const char *format_p, ...)
     file_p = open_memstream(&buf_p, &size);
     color_start(file_p, ANSI_COLOR_RED);
     fprintf(file_p, format_p, left_p, right_p);
-    fprintf(file_p, "            See diff for details.\n");
+    fprintf(file_p, "             See diff for details.\n");
     color_reset(file_p);
+
+    if (right_p == NULL) {
+        right_p = "<null>";
+    }
+
+    if (left_p == NULL) {
+        left_p = "<null>";
+    }
+
     print_string_diff(file_p, right_p, left_p);
     fputc('\0', file_p);
     fclose(file_p);
 
+    nala_resume_all_mocks();
+
     return (buf_p);
 }
 
-const char *nala_format_memory(const void *left_p,
+const char *nala_format_memory(const char *prefix_p,
+                               const void *left_p,
                                const void *right_p,
                                size_t size)
 {
@@ -977,8 +1065,21 @@ const char *nala_format_memory(const void *left_p,
     char *left_hexdump_p;
     char *right_hexdump_p;
 
+    nala_suspend_all_mocks();
+
     file_p = open_memstream(&buf_p, &file_size);
-    fprintf(file_p, COLOR_BOLD(RED, "Memory mismatch. See diff for details.\n"));
+    fprintf(file_p,
+            COLOR_BOLD(RED, "%sMemory mismatch. See diff for details.\n"),
+            prefix_p);
+
+    if (left_p == NULL) {
+        left_p = "<null>";
+    }
+
+    if (right_p == NULL) {
+        right_p = "<null>";
+    }
+
     left_hexdump_p = nala_hexdump(left_p, size, 16);
     right_hexdump_p = nala_hexdump(right_p, size, 16);
     print_string_diff(file_p, right_hexdump_p, left_hexdump_p);
@@ -987,43 +1088,70 @@ const char *nala_format_memory(const void *left_p,
     fputc('\0', file_p);
     fclose(file_p);
 
+    nala_resume_all_mocks();
+
     return (buf_p);
 }
 
-bool nala_check_substring(const char *actual_p, const char *expected_p)
+bool nala_check_substring(const char *string_p, const char *substring_p)
 {
-    return ((actual_p != NULL)
-            && (expected_p != NULL)
-            && (strstr(actual_p, expected_p) != NULL));
+    return ((string_p != NULL)
+            && (substring_p != NULL)
+            && (strstr(string_p, substring_p) != NULL));
 }
 
-void nala_test_failure(const char *file_p,
-                       int line,
-                       const char *message_p)
+bool nala_check_memory(const void *left_p, const void *right_p, size_t size)
 {
+    return !(((left_p == NULL) && (right_p != NULL))
+             || ((left_p != NULL) && (right_p == NULL))
+             || (memcmp(left_p, right_p, size) != 0));
+}
+
+static bool traceback_skip_filter(void *arg_p, const char *line_p)
+{
+    (void)arg_p;
+
+    if (strstr(line_p, "nala.c:") != NULL) {
+        return (true);
+    }
+
+    if (strstr(line_p, "??") != NULL) {
+        return (true);
+    }
+
+    return (false);
+}
+
+void nala_test_failure(const char *message_p)
+{
+    nala_suspend_all_mocks();
     nala_capture_output_stop();
     capture_output_destroy(&capture_stdout);
     capture_output_destroy(&capture_stderr);
+    print_test_failure_report_begin();
+    printf("  Test:  " COLOR_BOLD(CYAN, "%s\n"), full_test_name(current_test_p));
+    printf("  Error: %s", message_p);
     printf("\n");
-    printf("%s failed:\n\n", current_test_p->name_p);
-    printf("  Location: " COLOR_BOLD(GREEN, "%s:%d:\n"), file_p, line);
-    printf("  Error:    %s", message_p);
-    print_location_context(file_p, (size_t)line);
-    nala_traceback_print("  ");
-    printf("\n");
+    nala_traceback_print("  ", traceback_skip_filter, NULL);
+    print_test_failure_report_end();
+    free((void *)message_p);
     exit(1);
 }
 
 void nala_capture_output_start(char **output_pp, char **errput_pp)
 {
+    nala_suspend_all_mocks();
     capture_output_start(&capture_stdout, output_pp);
     capture_output_start(&capture_stderr, errput_pp);
+    nala_resume_all_mocks();
 }
 
 void nala_capture_output_stop()
 {
+    nala_suspend_all_mocks();
     capture_output_stop(&capture_stdout);
     capture_output_stop(&capture_stderr);
+    nala_resume_all_mocks();
 }
 
 void nala_register_test(struct nala_test_t *test_p)
@@ -1042,19 +1170,412 @@ int nala_run_tests()
     return (run_tests(tests.head_p));
 }
 
-__attribute__((weak)) int setup(void)
+static void print_usage_and_exit(const char *program_name_p, int exit_code)
 {
-    return (0);
+    printf("usage: %s [-h] [-v] [-c] [-a] [<test-pattern>]\n"
+           "\n"
+           "Run tests.\n"
+           "\n"
+           "positional arguments:\n"
+           "  test-pattern                  Only run tests containing given "
+           "pattern.\n"
+           "\n"
+           "optional arguments:\n"
+           "  -h, --help                    Show this help message and exit.\n"
+           "  -v, --version                 Print version information.\n"
+           "  -c, --continue-on-failure     Always run all tests.\n"
+           "  -a, --print-all-calls         Print all calls to ease debugging.\n",
+           program_name_p);
+    exit(exit_code);
 }
 
-__attribute__((weak)) int teardown(void)
+static void print_version_and_exit()
 {
-    return (0);
+    printf("%s\n", NALA_VERSION);
+    exit(0);
 }
 
-__attribute__((weak)) int main(void)
+static void filter_tests(const char *test_pattern_p)
 {
+    struct nala_test_t *test_p;
+
+    test_p = tests.head_p;
+    tests.head_p = NULL;
+    tests.tail_p = NULL;
+
+    while (test_p != NULL) {
+        if (strstr(full_test_name(test_p), test_pattern_p) != NULL) {
+            nala_register_test(test_p);
+        }
+
+        test_p = test_p->next_p;
+    }
+
+    if (tests.tail_p != NULL) {
+        tests.tail_p->next_p = NULL;
+    }
+}
+
+__attribute__((weak)) int main(int argc, char *argv[])
+{
+    static struct option long_options[] = {
+        { "help",                no_argument, NULL, 'h' },
+        { "version",             no_argument, NULL, 'v' },
+        { "continue-on-failure", no_argument, NULL, 'c' },
+        { "print-all-calls",     no_argument, NULL, 'a' },
+        { NULL,                  no_argument, NULL, 0 }
+    };
+    int option;
+
+    /* Do not print function calls outside tests. */
+    nala_suspend_all_mocks();
+
+    while (1) {
+        option = getopt_long(argc, argv, "hvca", &long_options[0], NULL);
+
+        if (option == -1) {
+            break;
+        }
+
+        switch (option) {
+
+        case 'h':
+            print_usage_and_exit(argv[0], 0);
+            break;
+
+        case 'v':
+            print_version_and_exit();
+            break;
+
+        case 'c':
+            continue_on_failure = true;
+            break;
+
+        case 'a':
+            nala_print_call_mask = 0xff;
+            break;
+
+        default:
+            print_usage_and_exit(argv[0], 1);
+        }
+    }
+
+    if (optind < argc) {
+        filter_tests(argv[optind]);
+    }
+
     return (nala_run_tests());
+}
+
+static bool mock_traceback_skip_filter(void *arg_p, const char *line_p)
+{
+    (void)arg_p;
+
+    if (strstr(line_p, "nala.c:") != NULL) {
+        return (true);
+    }
+
+    if (strstr(line_p, "nala_mocks.c:") != NULL) {
+        return (true);
+    }
+
+    if (strstr(line_p, "??") != NULL) {
+        return (true);
+    }
+
+    return (false);
+}
+
+char *nala_mock_traceback_format(void **buffer_pp, int depth)
+{
+    return (nala_traceback_format(buffer_pp,
+                                  depth,
+                                  "  ",
+                                  mock_traceback_skip_filter,
+                                  NULL));
+}
+
+#define CHECK_EQ(actual, expected)                      \
+    _Generic(                                           \
+        (actual),                                       \
+        char *: _Generic(                               \
+            (expected),                                 \
+            char *: nala_check_string_equal(            \
+                (char *)(uintptr_t)(actual),            \
+                (char *)(uintptr_t)(expected)),         \
+            const char *: nala_check_string_equal(      \
+                (char *)(uintptr_t)(actual),            \
+                (char *)(uintptr_t)(expected)),         \
+            default: false),                            \
+        const char *: _Generic(                         \
+            (expected),                                 \
+            char *: nala_check_string_equal(            \
+                (char *)(uintptr_t)(actual),            \
+                (char *)(uintptr_t)(expected)),         \
+            const char *: nala_check_string_equal(      \
+                (char *)(uintptr_t)(actual),            \
+                (char *)(uintptr_t)(expected)),         \
+            default: false),                            \
+        default: (actual) == (expected))
+
+#define CHECK_NE(actual, expected)                              \
+    _Generic(                                                   \
+        (actual),                                               \
+        char *: _Generic(                                       \
+            (expected),                                         \
+            char *: (!nala_check_string_equal(                  \
+                         (char *)(uintptr_t)(actual),           \
+                         (char *)(uintptr_t)(expected))),       \
+            const char *: (!nala_check_string_equal(            \
+                               (char *)(uintptr_t)(actual),     \
+                               (char *)(uintptr_t)(expected))), \
+            default: true),                                     \
+        const char *: _Generic(                                 \
+            (expected),                                         \
+            char *: (!nala_check_string_equal(                  \
+                         (char *)(uintptr_t)(actual),           \
+                         (char *)(uintptr_t)(expected))),       \
+            const char *: (!nala_check_string_equal(            \
+                               (char *)(uintptr_t)(actual),     \
+                               (char *)(uintptr_t)(expected))), \
+            default: true),                                     \
+        default: (actual) != (expected))
+
+#define CHECK_LT(actual, expected) ((actual) < (expected))
+
+#define CHECK_LE(actual, expected) ((actual) <= (expected))
+
+#define CHECK_GT(actual, expected) ((actual) > (expected))
+
+#define CHECK_GE(actual, expected) ((actual) >= (expected))
+
+#define CHECK_SUBSTRING(actual, expected)       \
+    nala_check_substring(actual, expected)
+
+#define CHECK_NOT_SUBSTRING(actual, expected)   \
+    (!nala_check_substring(actual, expected))
+
+#define FORMAT_EQ(format, actual, expected)                             \
+    _Generic(                                                           \
+        (actual),                                                       \
+        char *: _Generic(                                               \
+            (expected),                                                 \
+            char *: nala_format_string(                                 \
+                format,                                                 \
+                (char *)(uintptr_t)(actual),                            \
+                (char *)(uintptr_t)(expected)),                         \
+            const char *: nala_format_string(                           \
+                format,                                                 \
+                (char *)(uintptr_t)(actual),                            \
+                (char *)(uintptr_t)(expected)),                         \
+            default: nala_format(format, (actual), (expected))),        \
+        const char *: _Generic(                                         \
+            (expected),                                                 \
+            char *: nala_format_string(                                 \
+                format,                                                 \
+                (char *)(uintptr_t)(actual),                            \
+                (char *)(uintptr_t)(expected)),                         \
+            const char *: nala_format_string(                           \
+                format,                                                 \
+                (char *)(uintptr_t)(actual),                            \
+                (char *)(uintptr_t)(expected)),                         \
+            default: nala_format(format, (actual), (expected))),        \
+        default: nala_format(format, (actual), (expected)))
+
+#define PRINT_FORMAT(value)                     \
+    _Generic((value),                           \
+             char: "%c",                        \
+             signed char: "%hhd",               \
+             unsigned char: "%hhu",             \
+             signed short: "%hd",               \
+             unsigned short: "%hu",             \
+             signed int: "%d",                  \
+             unsigned int: "%u",                \
+             long int: "%ld",                   \
+             unsigned long int: "%lu",          \
+             long long int: "%lld",             \
+             unsigned long long int: "%llu",    \
+             float: "%f",                       \
+             double: "%f",                      \
+             long double: "%Lf",                \
+             const char *: "\"%s\"",            \
+             bool: "%d",                        \
+             const void *: "%p")
+
+#define ASSERTION(actual, expected, check, format, formatter)   \
+    do {                                                        \
+        if (!check(actual, expected)) {                         \
+            nala_reset_all_mocks();                             \
+            char _nala_assert_format[512];                      \
+                                                                \
+            snprintf(&_nala_assert_format[0],                   \
+                     sizeof(_nala_assert_format),               \
+                     format,                                    \
+                     PRINT_FORMAT(actual),                      \
+                     PRINT_FORMAT(expected));                   \
+            nala_test_failure(formatter(_nala_assert_format,    \
+                                        actual,                 \
+                                        expected));             \
+        }                                                       \
+    } while (0);
+
+#define BINARY_ASSERTION(actual, expected, op)                          \
+    switch (op) {                                                       \
+                                                                        \
+    case NALA_CHECK_EQ:                                                 \
+        ASSERTION(actual, expected, CHECK_EQ, "%s != %s\n", FORMAT_EQ); \
+        break;                                                          \
+                                                                        \
+    case NALA_CHECK_NE:                                                 \
+        ASSERTION(actual, expected, CHECK_NE, "%s == %s\n", nala_format); \
+        break;                                                          \
+                                                                        \
+    case NALA_CHECK_LT:                                                 \
+        ASSERTION(actual, expected, CHECK_LT, "%s >= %s\n", nala_format); \
+        break;                                                          \
+                                                                        \
+    case NALA_CHECK_LE:                                                 \
+        ASSERTION(actual, expected, CHECK_LE, "%s > %s\n", nala_format); \
+        break;                                                          \
+                                                                        \
+    case NALA_CHECK_GT:                                                 \
+        ASSERTION(actual, expected, CHECK_GT, "%s <= %s\n", nala_format); \
+        break;                                                          \
+                                                                        \
+    case NALA_CHECK_GE:                                                 \
+        ASSERTION(actual, expected, CHECK_GE, "%s < %s\n", nala_format); \
+        break;                                                          \
+                                                                        \
+    default:                                                            \
+        FAIL();                                                         \
+        break;                                                          \
+    }
+
+void nala_assert_char(char actual, char expected, int op)
+{
+    BINARY_ASSERTION(actual, expected, op);
+}
+
+void nala_assert_schar(signed char actual, signed char expected, int op)
+{
+    BINARY_ASSERTION(actual, expected, op);
+}
+
+void nala_assert_uchar(unsigned char actual, unsigned char expected, int op)
+{
+    BINARY_ASSERTION(actual, expected, op);
+}
+
+void nala_assert_short(short actual, short expected, int op)
+{
+    BINARY_ASSERTION(actual, expected, op);
+}
+
+void nala_assert_ushort(unsigned short actual, unsigned short expected, int op)
+{
+    BINARY_ASSERTION(actual, expected, op);
+}
+
+void nala_assert_int(int actual, int expected, int op)
+{
+    BINARY_ASSERTION(actual, expected, op);
+}
+
+void nala_assert_uint(unsigned int actual, unsigned int expected, int op)
+{
+    BINARY_ASSERTION(actual, expected, op);
+}
+
+void nala_assert_long(long actual, long expected, int op)
+{
+    BINARY_ASSERTION(actual, expected, op);
+}
+
+void nala_assert_ulong(unsigned long actual, unsigned long expected, int op)
+{
+    BINARY_ASSERTION(actual, expected, op);
+}
+
+void nala_assert_llong(long long actual, long long expected, int op)
+{
+    BINARY_ASSERTION(actual, expected, op);
+}
+
+void nala_assert_ullong(unsigned long long actual,
+                        unsigned long long expected,
+                        int op)
+{
+    BINARY_ASSERTION(actual, expected, op);
+}
+
+void nala_assert_float(float actual, float expected, int op)
+{
+    BINARY_ASSERTION(actual, expected, op);
+}
+
+void nala_assert_double(double actual, double expected, int op)
+{
+    BINARY_ASSERTION(actual, expected, op);
+}
+
+void nala_assert_ldouble(long double actual, long double expected, int op)
+{
+    BINARY_ASSERTION(actual, expected, op);
+}
+
+void nala_assert_bool(bool actual, bool expected, int op)
+{
+    BINARY_ASSERTION(actual, expected, op);
+}
+
+void nala_assert_ptr(const void *actual_p, const void *expected_p, int op)
+{
+    BINARY_ASSERTION(actual_p, expected_p, op);
+}
+
+void nala_assert_string(const char *actual_p, const char *expected_p, int op)
+{
+    BINARY_ASSERTION(actual_p, expected_p, op);
+}
+
+void nala_assert_substring(const char *haystack_p, const char *needle_p)
+{
+    ASSERTION(haystack_p,
+              needle_p,
+              CHECK_SUBSTRING,
+              "%s doesn't contain %s\n",
+              nala_format);
+}
+
+void nala_assert_not_substring(const char *haystack_p, const char *needle_p)
+{
+    ASSERTION(haystack_p,
+              needle_p,
+              CHECK_NOT_SUBSTRING,
+              "%s contains %s\n",
+              nala_format);
+}
+
+void nala_assert_memory(const void *actual_p, const void *expected_p, size_t size)
+{
+    if (!nala_check_memory(actual_p, expected_p, size)) {
+        nala_reset_all_mocks();
+        nala_test_failure(nala_format_memory("", actual_p, expected_p, size));
+    }
+}
+
+void nala_assert(bool cond)
+{
+    if (!cond) {
+        nala_reset_all_mocks();
+        nala_test_failure(nala_format("false != true\n"));
+    }
+}
+
+void nala_fail(void)
+{
+    nala_reset_all_mocks();
+    nala_test_failure(nala_format("fail\n"));
 }
 /*
  * The MIT License (MIT)
@@ -1090,6 +1611,8 @@ __attribute__((weak)) int main(void)
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <poll.h>
+#include <fcntl.h>
 // #include "subprocess.h"
 
 
@@ -1135,10 +1658,11 @@ static void output_append(struct nala_subprocess_output_t *self_p, int fd)
                 self_p->size += 4096;
                 self_p->buf_p = realloc(self_p->buf_p, self_p->size);
             }
-        } else {
-            if (errno != EINTR) {
-                fatal_error("read");
-            }
+        } else if (errno == EAGAIN) {
+            break;
+        } else if (errno != EINTR) {
+            /* ToDo: Fix. */
+            fatal_error("read");
         }
     }
 }
@@ -1205,12 +1729,10 @@ static void call_child(nala_subprocess_entry_t entry,
     entry(arg_p);
 }
 
-static struct nala_subprocess_result_t *call_parent(pid_t child_pid)
+static struct nala_subprocess_result_t *wait_for_pid(pid_t child_pid,
+                                                     struct nala_subprocess_result_t *result_p)
 {
-    struct nala_subprocess_result_t *result_p;
     int status;
-
-    result_p = result_new();
 
     waitpid(child_pid, &status, 0);
 
@@ -1227,6 +1749,11 @@ static struct nala_subprocess_result_t *call_parent(pid_t child_pid)
     return (result_p);
 }
 
+static struct nala_subprocess_result_t *call_parent(pid_t child_pid)
+{
+    return (wait_for_pid(child_pid, result_new()));
+}
+
 static void call_output_child(nala_subprocess_entry_t entry,
                               void *arg_p,
                               int *stdoutfds_p,
@@ -1235,6 +1762,60 @@ static void call_output_child(nala_subprocess_entry_t entry,
     redirect_output(stdoutfds_p, STDOUT_FILENO);
     redirect_output(stderrfds_p, STDERR_FILENO);
     call_child(entry, arg_p);
+}
+
+static int prepare_for_poll(struct pollfd *fd_p, int fd)
+{
+    int res;
+
+    res = fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_NONBLOCK);
+    fd_p->fd = fd;
+    fd_p->events = (POLLIN | POLLHUP);
+
+    return (res);
+}
+
+static struct nala_subprocess_result_t *read_output(int stdout_fd, int stderr_fd)
+{
+    struct nala_subprocess_result_t *result_p;
+    struct pollfd fds[2];
+    int res;
+
+    result_p = result_new();
+
+    if (result_p == NULL) {
+        return (NULL);
+    }
+
+    prepare_for_poll(&fds[0], stdout_fd);
+    prepare_for_poll(&fds[1], stderr_fd);
+
+    while (1) {
+        res = poll(&fds[0], 2, -1);
+
+        if (res >= 0) {
+            if (fds[0].revents & POLLIN) {
+                output_append(&result_p->stdout, stdout_fd);
+            }
+
+            if (fds[1].revents & POLLIN) {
+                output_append(&result_p->stderr, stderr_fd);
+            }
+
+            if (fds[0].revents & POLLHUP) {
+                break;
+            }
+
+            if (fds[1].revents & POLLHUP) {
+                break;
+            }
+        } else if (errno != EINTR) {
+            /* ToDo: Fix. */
+            fatal_error("poll");
+        }
+    }
+
+    return (result_p);
 }
 
 static struct nala_subprocess_result_t *call_output_parent(pid_t child_pid,
@@ -1247,13 +1828,9 @@ static struct nala_subprocess_result_t *call_output_parent(pid_t child_pid,
     close(stdoutfds_p[1]);
     close(stderrfds_p[1]);
 
-    result_p = call_parent(child_pid);
-
-    /* Poll stdout and stderr pipes. */
-    if (result_p != NULL) {
-        output_append(&result_p->stdout, stdoutfds_p[0]);
-        output_append(&result_p->stderr, stderrfds_p[0]);
-    }
+    /* Read data from stdout and stderr pipes. */
+    result_p = read_output(stdoutfds_p[0], stderrfds_p[0]);
+    wait_for_pid(child_pid, result_p);
 
     close(stdoutfds_p[0]);
     close(stderrfds_p[0]);
@@ -1397,69 +1974,174 @@ void nala_subprocess_result_free(struct nala_subprocess_result_t *self_p)
 #include <stdio.h>
 #include <stdint.h>
 #include <execinfo.h>
-// #include "traceback.h"
-
 #include <stdlib.h>
 #include <unistd.h>
+// #include "traceback.h"
+
+// #include "subprocess.h"
+
 
 #define DEPTH_MAX 100
+
+#define ANSI_COLOR_GREEN "\x1b[32m"
+#define ANSI_COLOR_CYAN  "\x1b[36m"
+#define ANSI_RESET       "\x1b[0m"
+
+#define COLOR(color, ...) ANSI_RESET ANSI_COLOR_##color __VA_ARGS__ ANSI_RESET
 
 static void *fixaddr(void *address_p)
 {
     return ((void *)(((uintptr_t)address_p) - 1));
 }
 
-void nala_traceback_print(const char *prefix_p)
+static bool is_nala_traceback_line(const char *line_p)
 {
-    int depth;
-    void *addresses[DEPTH_MAX];
+    if (strncmp(line_p, "nala_traceback_print at ", 19) == 0) {
+        return (true);
+    }
+
+    if (strncmp(line_p, "nala_traceback_string at ", 20) == 0) {
+        return (true);
+    }
+
+    return (false);
+}
+
+static char *strip_discriminator(char *line_p)
+{
+    char *discriminator_p;
+
+    discriminator_p = strstr(line_p, " (discriminator");
+
+    if (discriminator_p != NULL) {
+        discriminator_p[0] = '\n';
+        discriminator_p[1] = '\0';
+    }
+
+    return (line_p);
+}
+
+static void print_line(FILE *stream_p, const char *prefix_p, char *line_p)
+{
+    char *at_p;
+    char *function_p;
+    char *location_p;
+
+    function_p = line_p;
+    at_p = strstr(line_p, " at ");
+
+    if (at_p == NULL) {
+        fprintf(stream_p, "%s  %s", prefix_p, line_p);
+        return;
+    }
+
+    at_p[0] = '\0';
+    location_p = &at_p[4];
+
+    fprintf(stream_p,
+            "%s  " COLOR(GREEN, "%s") " at " COLOR(CYAN, "%s"),
+            prefix_p,
+            function_p,
+            location_p);
+}
+
+char *nala_traceback_format(void **buffer_pp,
+                       int depth,
+                       const char *prefix_p,
+                       nala_traceback_skip_filter_t skip_filter,
+                       void *arg_p)
+{
     char exe[256];
     char command[384];
     ssize_t size;
-    int res;
     int i;
+    FILE *stream_p;
+    size_t stream_size;
+    struct nala_subprocess_result_t *result_p;
+    char *string_p;
 
     if (prefix_p == NULL) {
         prefix_p = "";
     }
 
-    depth = backtrace(&addresses[0], DEPTH_MAX);
-
-    printf("%sTraceback (most recent call last):\n", prefix_p);
-
     size = readlink("/proc/self/exe", &exe[0], sizeof(exe) - 1);
 
     if (size == -1) {
-        printf("%sNo executable found!\n", prefix_p);
-
-        return;
+        return (NULL);
     }
 
     exe[size] = '\0';
 
-    for (i = (depth - 1); i >= 0; i--) {
-        printf("%s  ", prefix_p);
-        fflush(stdout);
+    stream_p = open_memstream(&string_p, &stream_size);
 
+    if (stream_p == NULL) {
+        return (NULL);
+    }
+
+    fprintf(stream_p, "%sTraceback (most recent call last):\n", prefix_p);
+
+    for (i = (depth - 1); i >= 0; i--) {
         snprintf(&command[0],
                  sizeof(command),
                  "addr2line -f -p -e %s %p",
                  &exe[0],
-                 fixaddr(addresses[i]));
-        command[sizeof(command) - 1] = '\0';
+                 fixaddr(buffer_pp[i]));
 
-        res = system(&command[0]);
+        result_p = nala_subprocess_exec_output(&command[0]);
 
-        if (res == -1) {
-            return;
-        } else if (WIFEXITED(res)) {
-            if (WEXITSTATUS(res) != 0) {
-                return;
-            }
-        } else {
-            return;
+        if (result_p->exit_code != 0) {
+            nala_subprocess_result_free(result_p);
+            continue;
         }
+
+        if (is_nala_traceback_line(result_p->stdout.buf_p)) {
+            nala_subprocess_result_free(result_p);
+            continue;
+        }
+
+        if (skip_filter != NULL) {
+            if (skip_filter(arg_p, result_p->stdout.buf_p)) {
+                nala_subprocess_result_free(result_p);
+                continue;
+            }
+        }
+
+        print_line(stream_p,
+                   prefix_p,
+                   strip_discriminator(result_p->stdout.buf_p));
+        nala_subprocess_result_free(result_p);
     }
+
+    fclose(stream_p);
+
+    return (string_p);
+}
+
+char *nala_traceback_string(const char *prefix_p,
+                       nala_traceback_skip_filter_t skip_filter,
+                       void *arg_p)
+{
+    int depth;
+    void *addresses[DEPTH_MAX];
+
+    depth = backtrace(&addresses[0], DEPTH_MAX);
+
+    return (nala_traceback_format(addresses,
+                             depth,
+                             prefix_p,
+                             skip_filter,
+                             arg_p));
+}
+
+void nala_traceback_print(const char *prefix_p,
+                     nala_traceback_skip_filter_t skip_filter,
+                     void *arg_p)
+{
+    char *string_p;
+
+    string_p = nala_traceback_string(prefix_p, skip_filter, arg_p);
+    printf("%s", string_p);
+    free(string_p);
 }
 /*
  * The MIT License (MIT)
@@ -1717,16 +2399,18 @@ const char *nala_next_lines(const char *string, size_t lines);
  * Diff matrix initialization
  */
 
-static void initialize_diff_matrix(NalaDiffMatrix *diff_matrix, size_t rows, size_t columns)
+static void initialize_diff_matrix(struct NalaDiffMatrix *diff_matrix,
+                                   size_t rows,
+                                   size_t columns)
 {
     diff_matrix->rows = rows;
     diff_matrix->columns = columns;
     diff_matrix->content = malloc(rows * columns * sizeof(int));
 }
 
-NalaDiffMatrix *nala_new_diff_matrix(size_t rows, size_t columns)
+struct NalaDiffMatrix *nala_new_diff_matrix(size_t rows, size_t columns)
 {
-    NalaDiffMatrix *diff_matrix = malloc(sizeof(NalaDiffMatrix));
+    struct NalaDiffMatrix *diff_matrix = malloc(sizeof(struct NalaDiffMatrix));
     initialize_diff_matrix(diff_matrix, rows, columns);
 
     return diff_matrix;
@@ -1736,10 +2420,10 @@ NalaDiffMatrix *nala_new_diff_matrix(size_t rows, size_t columns)
  * Diff matrix operations
  */
 
-NalaDiffMatrix *nala_new_diff_matrix_from_lengths(size_t original_length,
-                                                        size_t modified_length)
+struct NalaDiffMatrix *nala_new_diff_matrix_from_lengths(size_t original_length,
+                                                         size_t modified_length)
 {
-    NalaDiffMatrix *diff_matrix =
+    struct NalaDiffMatrix *diff_matrix =
         nala_new_diff_matrix(modified_length + 1, original_length + 1);
 
     for (size_t i = 0; i < diff_matrix->rows; i++) {
@@ -1753,7 +2437,7 @@ NalaDiffMatrix *nala_new_diff_matrix_from_lengths(size_t original_length,
     return diff_matrix;
 }
 
-static void fill_different(NalaDiffMatrix *diff_matrix, size_t i, size_t j)
+static void fill_different(struct NalaDiffMatrix *diff_matrix, size_t i, size_t j)
 {
     nala_diff_matrix_set(
         diff_matrix,
@@ -1765,7 +2449,7 @@ static void fill_different(NalaDiffMatrix *diff_matrix, size_t i, size_t j)
         1);
 }
 
-static void fill_equal(NalaDiffMatrix *diff_matrix, size_t i, size_t j)
+static void fill_equal(struct NalaDiffMatrix *diff_matrix, size_t i, size_t j)
 {
     nala_diff_matrix_set(diff_matrix,
                          i,
@@ -1773,7 +2457,7 @@ static void fill_equal(NalaDiffMatrix *diff_matrix, size_t i, size_t j)
                          nala_diff_matrix_get(diff_matrix, i - 1, j - 1));
 }
 
-void nala_diff_matrix_fill_from_strings(NalaDiffMatrix *diff_matrix,
+void nala_diff_matrix_fill_from_strings(struct NalaDiffMatrix *diff_matrix,
                                         const char *original,
                                         const char *modified)
 {
@@ -1788,7 +2472,7 @@ void nala_diff_matrix_fill_from_strings(NalaDiffMatrix *diff_matrix,
     }
 }
 
-void nala_diff_matrix_fill_from_lines(NalaDiffMatrix *diff_matrix,
+void nala_diff_matrix_fill_from_lines(struct NalaDiffMatrix *diff_matrix,
                                       const char *original,
                                       const char *modified)
 {
@@ -1820,16 +2504,16 @@ void nala_diff_matrix_fill_from_lines(NalaDiffMatrix *diff_matrix,
     }
 }
 
-NalaDiff nala_diff_matrix_get_diff(const NalaDiffMatrix *diff_matrix)
+struct NalaDiff nala_diff_matrix_get_diff(const struct NalaDiffMatrix *diff_matrix)
 {
     if (diff_matrix->rows == 1 && diff_matrix->columns == 1) {
-        NalaDiff diff = { .size = 0, .chunks = NULL };
+        struct NalaDiff diff = { .size = 0, .chunks = NULL };
         return diff;
     }
 
     size_t capacity = 32;
     size_t size = 0;
-    NalaDiffChunk *backtrack = malloc(capacity * sizeof(NalaDiffChunk));
+    struct NalaDiffChunk *backtrack = malloc(capacity * sizeof(struct NalaDiffChunk));
 
     size_t i = diff_matrix->rows - 1;
     size_t j = diff_matrix->columns - 1;
@@ -1837,10 +2521,10 @@ NalaDiff nala_diff_matrix_get_diff(const NalaDiffMatrix *diff_matrix)
     while (i > 0 || j > 0) {
         if (size == capacity) {
             capacity *= 2;
-            backtrack = realloc(backtrack, capacity * sizeof(NalaDiffChunk));
+            backtrack = realloc(backtrack, capacity * sizeof(struct NalaDiffChunk));
         }
 
-        NalaDiffChunk *current_chunk = &backtrack[size];
+        struct NalaDiffChunk *current_chunk = &backtrack[size];
         size++;
 
         int current = nala_diff_matrix_get(diff_matrix, i, j);
@@ -1878,7 +2562,7 @@ NalaDiff nala_diff_matrix_get_diff(const NalaDiffMatrix *diff_matrix)
         }
     }
 
-    NalaDiff diff = { size, malloc(size * sizeof(NalaDiffChunk)) };
+    struct NalaDiff diff = { size, malloc(size * sizeof(struct NalaDiffChunk)) };
 
     ssize_t backtrack_index = (ssize_t)size - 1;
     size_t chunk_index = 0;
@@ -1886,8 +2570,8 @@ NalaDiff nala_diff_matrix_get_diff(const NalaDiffMatrix *diff_matrix)
     diff.chunks[chunk_index] = backtrack[backtrack_index];
 
     for (backtrack_index--; backtrack_index >= 0; backtrack_index--) {
-        NalaDiffChunk *chunk = &backtrack[backtrack_index];
-        NalaDiffChunk *previous_chunk = &diff.chunks[chunk_index];
+        struct NalaDiffChunk *chunk = &backtrack[backtrack_index];
+        struct NalaDiffChunk *previous_chunk = &diff.chunks[chunk_index];
 
         if (chunk->type == previous_chunk->type) {
             previous_chunk->original_end = chunk->original_end;
@@ -1908,25 +2592,25 @@ NalaDiff nala_diff_matrix_get_diff(const NalaDiffMatrix *diff_matrix)
     free(backtrack);
 
     diff.size = chunk_index + 1;
-    diff.chunks = realloc(diff.chunks, diff.size * sizeof(NalaDiffChunk));
+    diff.chunks = realloc(diff.chunks, diff.size * sizeof(struct NalaDiffChunk));
 
     return diff;
 }
 
-size_t nala_diff_matrix_index(const NalaDiffMatrix *diff_matrix, size_t row, size_t column)
+size_t nala_diff_matrix_index(const struct NalaDiffMatrix *diff_matrix, size_t row, size_t column)
 {
     return row * diff_matrix->columns + column;
 }
 
-int nala_diff_matrix_get(const NalaDiffMatrix *diff_matrix, size_t row, size_t column)
+int nala_diff_matrix_get(const struct NalaDiffMatrix *diff_matrix, size_t row, size_t column)
 {
     return diff_matrix->content[nala_diff_matrix_index(diff_matrix, row, column)];
 }
 
-void nala_diff_matrix_set(const NalaDiffMatrix *diff_matrix,
-                             size_t row,
-                             size_t column,
-                             int value)
+void nala_diff_matrix_set(const struct NalaDiffMatrix *diff_matrix,
+                          size_t row,
+                          size_t column,
+                          int value)
 {
     diff_matrix->content[nala_diff_matrix_index(diff_matrix, row, column)] = value;
 }
@@ -1935,39 +2619,39 @@ void nala_diff_matrix_set(const NalaDiffMatrix *diff_matrix,
  * Higher-level wrappers
  */
 
-NalaDiff nala_diff_strings_lengths(const char *original,
-                                         size_t original_length,
-                                         const char *modified,
-                                         size_t modified_length)
+struct NalaDiff nala_diff_strings_lengths(const char *original,
+                                   size_t original_length,
+                                   const char *modified,
+                                   size_t modified_length)
 {
-    NalaDiffMatrix *diff_matrix =
+    struct NalaDiffMatrix *diff_matrix =
         nala_new_diff_matrix_from_lengths(original_length, modified_length);
 
     nala_diff_matrix_fill_from_strings(diff_matrix, original, modified);
 
-    NalaDiff diff = nala_diff_matrix_get_diff(diff_matrix);
+    struct NalaDiff diff = nala_diff_matrix_get_diff(diff_matrix);
 
     nala_free_diff_matrix(diff_matrix);
 
     return diff;
 }
 
-NalaDiff nala_diff_strings(const char *original, const char *modified)
+struct NalaDiff nala_diff_strings(const char *original, const char *modified)
 {
     return nala_diff_strings_lengths(original, strlen(original), modified, strlen(modified));
 }
 
-NalaDiff nala_diff_lines(const char *original, const char *modified)
+struct NalaDiff nala_diff_lines(const char *original, const char *modified)
 {
     size_t original_length = nala_count_chars(original, '\n') + 1;
     size_t modified_length = nala_count_chars(modified, '\n') + 1;
 
-    NalaDiffMatrix *diff_matrix =
+    struct NalaDiffMatrix *diff_matrix =
         nala_new_diff_matrix_from_lengths(original_length, modified_length);
 
     nala_diff_matrix_fill_from_lines(diff_matrix, original, modified);
 
-    NalaDiff diff = nala_diff_matrix_get_diff(diff_matrix);
+    struct NalaDiff diff = nala_diff_matrix_get_diff(diff_matrix);
 
     nala_free_diff_matrix(diff_matrix);
 
@@ -1978,7 +2662,7 @@ NalaDiff nala_diff_lines(const char *original, const char *modified)
  * Cleanup
  */
 
-void nala_free_diff_matrix(NalaDiffMatrix *diff_matrix)
+void nala_free_diff_matrix(struct NalaDiffMatrix *diff_matrix)
 {
     free(diff_matrix->content);
     free(diff_matrix);
@@ -1995,38 +2679,41 @@ char *nala_hexdump(const uint8_t *buffer, size_t size, size_t bytes_per_row)
     size_t dump_size;
     char *dump;
     FILE *stream = open_memstream(&dump, &dump_size);
-
     size_t offset = 0;
 
-    while (offset < size) {
-        fprintf(stream, "%06lX  ", offset);
+    if (buffer == NULL) {
+        fprintf(stream, "<nil>\n");
+    } else {
+        while (offset < size) {
+            fprintf(stream, "%06lX  ", offset);
 
-        for (size_t i = 0; i < bytes_per_row; i++) {
-            if (offset + i < size)             {
-                fprintf(stream, "%02X ", buffer[offset + i]);
-            } else {
-                fprintf(stream, "-- ");
+            for (size_t i = 0; i < bytes_per_row; i++) {
+                if (offset + i < size)             {
+                    fprintf(stream, "%02X ", buffer[offset + i]);
+                } else {
+                    fprintf(stream, "-- ");
+                }
             }
-        }
 
-        fprintf(stream, " ");
+            fprintf(stream, " ");
 
-        for (size_t i = 0; i < bytes_per_row; i++) {
-            if (offset + i < size) {
-                uint8_t byte = buffer[offset + i];
-                fprintf(stream, "%c", isprint(byte) ? byte : '.');
-            } else {
-                fprintf(stream, " ");
+            for (size_t i = 0; i < bytes_per_row; i++) {
+                if (offset + i < size) {
+                    uint8_t byte = buffer[offset + i];
+                    fprintf(stream, "%c", isprint(byte) ? byte : '.');
+                } else {
+                    fprintf(stream, " ");
+                }
             }
-        }
 
-        offset += bytes_per_row;
+            offset += bytes_per_row;
 
-        if (offset < size) {
-            fprintf(stream, "\n");
+            if (offset < size) {
+                fprintf(stream, "\n");
+            }
         }
     }
-
+    
     fclose(stream);
 
     return dump;

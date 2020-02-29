@@ -39,7 +39,7 @@
 #include <unistd.h>
 
 /* Library version. */
-#define DBG_VERSION "0.12.0"
+#define DBG_VERSION "0.12.1"
 
 #ifndef NDBG
 /**
@@ -140,8 +140,7 @@
              const float *: dbg_hexdump_const_float_p,                  \
              double *: dbg_hexdump_double_p,                            \
              const double *: dbg_hexdump_const_double_p,                \
-             void *: dbg_hexdump_p,                                     \
-             const void *: dbg_hexdump_const_p)                         \
+             default: dbg_hexdump_const_p)                              \
     (__FILE__, __LINE__, __func__, #expr, expr, size)
 
 /**

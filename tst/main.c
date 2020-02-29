@@ -657,3 +657,25 @@ TEST(backtrace_output)
         "main.c:652: (backtrace_output) "
         "Backtrace (most recent call last):");
 }
+
+struct hexdump_struct_t {
+    int a;
+    int b;
+};
+
+TEST(hexdump_struct)
+{
+    struct hexdump_struct_t value;
+
+    value.a = 1;
+    value.b = 2;
+
+    CAPTURE_OUTPUT(stdoutput, stderrput) {
+        dbgh(&value, sizeof(value));
+    }
+
+    ASSERT_SUBSTRING(
+        stderrput,
+        ": (hexdump_struct) &value (size: 8):\n"
+        "    00000000: ");
+}
