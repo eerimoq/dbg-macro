@@ -34,7 +34,9 @@
 #include <string.h>
 #include <stdio.h>
 #include <ctype.h>
-#include <execinfo.h>
+#ifdef __GLIBC__
+#    include <execinfo.h>
+#endif
 #include <stdlib.h>
 #include <unistd.h>
 
@@ -582,6 +584,8 @@ static inline int dbg_error(const char *file_p,
     return (error);
 }
 
+#ifdef __GLIBC__
+
 #define DBG_BACKTRACE_MAX 100
 #define DBG_TOKENPASTE(x, y) DBG_TOKENPASTE2(x, y)
 #define DBG_TOKENPASTE2(x, y) x ## y
@@ -687,5 +691,7 @@ static inline void dbg_format_backtrace(const char *file_p,
         dbg_format_backtrace_symbols(addresses_pp, depth);
     }
 }
+
+#endif
 
 #endif
