@@ -2,10 +2,11 @@
 #define NALA_H
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 
-#define NALA_VERSION "0.94.0"
+#define NALA_VERSION "0.141.0"
 
 /**
  * Assert that given characters, numbers, pointers or strings are
@@ -61,8 +62,14 @@
 /**
  * Assert that given memory regions are equal.
  */
-#define ASSERT_MEMORY(actual, expected, size)   \
+#define ASSERT_MEMORY_EQ(actual, expected, size)        \
     nala_assert_memory(actual, expected, size)
+
+/**
+ * Assert that given arrays are equal.
+ */
+#define ASSERT_ARRAY_EQ(actual, expected, size)                        \
+    NALA_ASSERT_ARRAY_FUNC(actual)(actual, expected, sizeof((actual)[0]), size)
 
 /**
  * Assert that given function pointes are equal.
@@ -86,9 +93,9 @@
 #define ASSERT(cond) nala_assert(cond)
 
 /**
- * Fail current test.
+ * Fail current test with given message.
  */
-#define FAIL() nala_fail()
+#define FAIL(message) nala_fail(message)
 
 /**
  * A capture output block.
@@ -124,6 +131,12 @@
     }                                                   \
     static void name(void)
 
+/**
+ * Performs post-test checks and cleanup, and then exits with status
+ * 0. The status parameter is ignored.
+ */
+void nala_exit(int status);
+
 /*
  * Everything below is for Nala-internal use only!
  */
@@ -155,6 +168,40 @@
              const char *: nala_assert_string,          \
              bool: nala_assert_bool,                    \
              default: nala_assert_ptr)
+
+#define NALA_ASSERT_ARRAY_FUNC(value)                                   \
+    _Generic((value),                                                   \
+             char *: nala_assert_array_char,                            \
+             const char *: nala_assert_array_char,                      \
+             signed char *: nala_assert_array_schar,                    \
+             const signed char *: nala_assert_array_schar,              \
+             unsigned char *: nala_assert_array_uchar,                  \
+             const unsigned char *: nala_assert_array_uchar,            \
+             short *: nala_assert_array_short,                          \
+             const short *: nala_assert_array_short,                    \
+             unsigned short *: nala_assert_array_ushort,                \
+             const unsigned short *: nala_assert_array_ushort,          \
+             int *: nala_assert_array_int,                              \
+             const int *: nala_assert_array_int,                        \
+             unsigned int *: nala_assert_array_uint,                    \
+             const unsigned int *: nala_assert_array_uint,              \
+             long *: nala_assert_array_long,                            \
+             const long *: nala_assert_array_long,                      \
+             unsigned long *: nala_assert_array_ulong,                  \
+             const unsigned long *: nala_assert_array_ulong,            \
+             long long *: nala_assert_array_llong,                      \
+             const long long *: nala_assert_array_llong,                \
+             unsigned long long *: nala_assert_array_ullong,            \
+             const unsigned long long *: nala_assert_array_ullong,      \
+             float *: nala_assert_array_float,                          \
+             const float *: nala_assert_array_float,                    \
+             double *: nala_assert_array_double,                        \
+             const double *: nala_assert_array_double,                  \
+             long double *: nala_assert_array_ldouble,                  \
+             const long double *: nala_assert_array_ldouble,            \
+             bool *: nala_assert_array_bool,                            \
+             const bool *: nala_assert_array_bool,                      \
+             default: nala_assert_array)
 
 struct nala_test_t {
     const char *name_p;
@@ -237,6 +284,86 @@ void nala_assert_bool(bool actual, bool expected, int op);
 
 void nala_assert_ptr(const void *actual_p, const void *expected_p, int op);
 
+void nala_assert_array_char(const char *actual_p,
+                            const char *expected_p,
+                            size_t item_size,
+                            size_t size);
+
+void nala_assert_array_schar(const signed char *actual_p,
+                             const signed char *expected_p,
+                             size_t item_size,
+                             size_t size);
+
+void nala_assert_array_uchar(const unsigned char *actual_p,
+                             const unsigned char *expected_p,
+                             size_t item_size,
+                             size_t size);
+
+void nala_assert_array_short(const short *actual_p,
+                             const short *expected_p,
+                             size_t item_size,
+                             size_t size);
+
+void nala_assert_array_ushort(const unsigned short *actual_p,
+                              const unsigned short *expected_p,
+                              size_t item_size,
+                              size_t size);
+
+void nala_assert_array_int(const int *actual_p,
+                           const int *expected_p,
+                           size_t item_size,
+                           size_t size);
+
+void nala_assert_array_uint(const unsigned int *actual_p,
+                            const unsigned int *expected_p,
+                            size_t item_size,
+                            size_t size);
+
+void nala_assert_array_long(const long *actual_p,
+                            const long *expected_p,
+                            size_t item_size,
+                            size_t size);
+
+void nala_assert_array_ulong(const unsigned long *actual_p,
+                             const unsigned long *expected_p,
+                             size_t item_size,
+                             size_t size);
+
+void nala_assert_array_llong(const long long *actual_p,
+                             const long long *expected_p,
+                             size_t item_size,
+                             size_t size);
+
+void nala_assert_array_ullong(const unsigned long long *actual_p,
+                              const unsigned long long *expected_p,
+                              size_t item_size,
+                              size_t size);
+
+void nala_assert_array_float(const float *actual_p,
+                             const float *expected_p,
+                             size_t item_size,
+                             size_t size);
+
+void nala_assert_array_double(const double *actual_p,
+                              const double *expected_p,
+                              size_t item_size,
+                              size_t size);
+
+void nala_assert_array_ldouble(const long double *actual_p,
+                               const long double *expected_p,
+                               size_t item_size,
+                               size_t size);
+
+void nala_assert_array_bool(const bool *actual_p,
+                            const bool *expected_p,
+                            size_t item_size,
+                            size_t size);
+
+void nala_assert_array(const void *actual_p,
+                       const void *expected_p,
+                       size_t item_size,
+                       size_t size);
+
 void nala_assert_string(const char *actual_p, const char *expected_p, int op);
 
 void nala_assert_substring(const char *haystack_p, const char *needle_p);
@@ -247,6 +374,6 @@ void nala_assert_memory(const void *actual_p, const void *expected_p, size_t siz
 
 void nala_assert(bool cond);
 
-void nala_fail(void);
+void nala_fail(const char *message_p);
 
 #endif
