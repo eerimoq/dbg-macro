@@ -59,3 +59,4 @@ test_dbg_ostream.txt
 *.gcda
 *.gcno
 report.json
+build
