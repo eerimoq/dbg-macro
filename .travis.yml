@@ -7,7 +7,7 @@ install:
   - pip install nala
 
 script:
-  - make test
+  - make
   - make -C examples
 
 after_success:
