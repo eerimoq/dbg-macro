@@ -1,5 +1,6 @@
 |buildstatus|_
 |codecov|_
+|nala|_
 
 About
 =====
@@ -84,6 +85,9 @@ by default).
 
 .. |tryit| image:: https://img.shields.io/badge/try-online-f34b7d.svg
 .. _tryit: https://repl.it/@eerimoq/dbg-macro
+
+.. |nala| image:: https://img.shields.io/badge/nala-test-blue.svg
+.. _nala: https://github.com/eerimoq/nala
 
 .. _dbg!(…) macro: https://doc.rust-lang.org/std/macro.dbg.html
 
