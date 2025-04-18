@@ -558,11 +558,11 @@ DBG_FUNC(float, float, "%f")
 DBG_FUNC(double, double, "%lf")
 
 #if defined(_WIN32) || defined(_WIN64)
-#define error_str(error,string)\
-	strerror_s(&string[0], sizeof(string), -error)
+#define error_str(error, string)                        \
+    strerror_s(&string[0], sizeof(string), -error)
 #else
-#define error_str(error,string)\
-        strerror_r(-error, &string[0], sizeof(string))
+#define error_str(error, string)                        \
+    strerror_r(-error, &string[0], sizeof(string))
 #endif
 
 static inline int dbg_error(const char *file_p,
@@ -575,7 +575,7 @@ static inline int dbg_error(const char *file_p,
     char buf[256];
 
     if (error < 0) {
-        error_str(error,string);
+        error_str(error, string);
         snprintf(&buf[0], sizeof(buf), "%d (%s)", error, &string[0]);
         buf[sizeof(buf) - 1] = '\0';
         fprintf(DBG_OSTREAM,
