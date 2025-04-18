@@ -41,7 +41,7 @@
 #include <unistd.h>
 
 /* Library version. */
-#define DBG_VERSION "0.12.1"
+#define DBG_VERSION "0.13.0"
 
 #ifndef NDBG
 /**
