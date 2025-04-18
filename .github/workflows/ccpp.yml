@@ -9,5 +9,9 @@ jobs:
     
     steps:
     - uses: actions/checkout@v1
-    - name: test
-      run: make test
+    - name: Install Nala
+      run: pip install nala
+    - name: Test
+      run: make
+    - name: Examples
+      run: make -C examples
